@@ -27,6 +27,7 @@ public class HqlQueryBuilderTest {
     public void testFromClass() {
         String hql = hqlQueryBuilder.from(Order.class).build();
         Assertions.assertEquals("FROM com.hql.fabric.persistence.entity.Order", hql);
+        hqlQueryBuilder.clear();
     }
 
     @Test
