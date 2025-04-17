@@ -9,11 +9,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.platform.commons.util.StringUtils;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SpringBootTest(classes = HqlFabricCoreTestApp.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -93,6 +96,7 @@ public class HqlQueryBuilderTest {
                 .and()
                 .eq("order.type", "type1")
                 .build();
+
         Assertions.assertEquals("SELECT NEW MAP (u.name as foo, u.email as aa@alipay.com, " +
                 "com.hql.fabric.persistence.entity.User.groupInfo as groupInfo) " +
                 "FROM com.hql.fabric.persistence.entity.User as u, " +
@@ -104,7 +108,77 @@ public class HqlQueryBuilderTest {
         hqlQueryBuilder.clear();
         Assertions.assertEquals(hqlParameters.size(), 2);
         Assertions.assertEquals(hqlQueryBuilder.getInjectionParameters().size(), 0);
+    }
 
+    @Test
+    public void testSubQuery() {
+        HqlQueryBuilder subHqlQueryBuilder = new HqlQueryBuilder();
+        subHqlQueryBuilder.from("product.id")
+                .selectCount()
+                .eq("field1_key", "testKey")
+                .and()
+                .eq("field1_value", "testValue");
+        String subHqlQuery = subHqlQueryBuilder.build();
+        Assertions.assertEquals("SELECT COUNT (*) FROM " +
+                "product.id WHERE field1_key = :_0 " +
+                "and field1_value = :_1", subHqlQuery);
+        Map<String, Object> subQueryParamMap = subHqlQueryBuilder.getInjectionParameters();
+        Assertions.assertEquals("testKey", subQueryParamMap.get("_0"));
+        Assertions.assertEquals("testValue", subQueryParamMap.get("_1"));
+
+        assertNull(subQueryParamMap.get("sub_0"));
+        assertNull(subQueryParamMap.get("sub_1"));
+
+        // Add sub query to primary query
+        hqlQueryBuilder.fromAs(Order.class, "order")
+                .leftJoin("order.orderNo", "orderNo")
+                .select("user")
+                .isNull("user.deleted")
+                .and()
+                .eq("order.id", "testOrderId")
+                .and()
+                .isNull("user.deleted")
+                .and()
+                .open()
+                .open()
+                .subQuery(subHqlQueryBuilder)
+                .gt(0)
+                .close();
+
+        String hql = hqlQueryBuilder.build();
+        Map<String, Object> hqlParams = hqlQueryBuilder.getInjectionParameters();
+
+        Assertions.assertTrue(StringUtils.isNotBlank(hql));
+        Assertions.assertEquals(4, hqlParams.size());
+        Assertions.assertEquals("testKey", hqlParams.get("sub_1"));
+        Assertions.assertEquals("testValue", hqlParams.get("sub_2"));
+        assertNull(hqlParams.get("_2"));
+        assertNull(hqlParams.get("_1"));
+    }
+
+    @Test
+    public void testGreaterThan() {
+        String hql = hqlQueryBuilder.fromAs(User.class, "user").selectCount().eq(
+                "user.name", "testName").gt(0).build();
+        Assertions.assertEquals("SELECT COUNT (*) " +
+                "FROM com.hql.fabric.persistence.entity.User as user " +
+                "WHERE user.name = :_0 > :_1", hql);
+    }
+
+
+    @Test
+    public void testLessThan() {
+        String hql = hqlQueryBuilder.fromAs(User.class,
+                "user").selectCount().eq(
+                "user.name", "testName").lt(0).build();
+
+        Assertions.assertEquals("SELECT COUNT (*) " +
+                "FROM com.hql.fabric.persistence.entity.User as user " +
+                "WHERE user.name = :_0 < :_1", hql);
+    }
+
+    @Test
+    public void testGtGe() {
 
     }
 }

@@ -287,6 +287,41 @@ public class HqlQueryBuilder {
     }
 
     /**
+     * Used to select the count an entity.
+     *
+     * @param entity entity to count by name
+     * @return builder
+     */
+    public HqlQueryBuilder selectCount(String entity) {
+        selectClause = SelectClause.COUNT;
+        operatorField = entity;
+        return this;
+    }
+
+    /**
+     * Used to select the count of an entity.
+     *
+     * @param clazz Class of the entity to select the count o n
+     * @return builder
+     */
+    public HqlQueryBuilder selectCount(Class clazz) {
+        selectClause = SelectClause.COUNT;
+        operatorField = clazz.getName();
+        return this;
+    }
+
+    /**
+     * Used to select the count of a default entity.
+     *
+     * @return builder
+     */
+    public HqlQueryBuilder selectCount() {
+        selectClause = SelectClause.COUNT;
+        operatorField = "*";
+        return this;
+    }
+
+    /**
      * Used to assign ordering by which the query will be returned.
      * The order in which fields are added to the builder is the order by which they will be
      * created.
@@ -307,6 +342,117 @@ public class HqlQueryBuilder {
 
     public HqlQueryBuilder having(String operator) {
         this.having = operator;
+        return this;
+    }
+
+
+    /**
+     * Used to add a query to a query so you can query while you query data.
+     * Adds a subQuery to the conditions of the current query.
+     *
+     * @param subHqlQueryBuilder HqlQueryBuilder containing the parts of the subQuery.
+     * @return builder without modifying the subQueryBuilder.
+     */
+    public HqlQueryBuilder subQuery(HqlQueryBuilder subHqlQueryBuilder) {
+        Map<String, String> tokensToReplace = new HashMap<>();
+
+        for (Map.Entry<String, Object> subQueryParameter :
+                subHqlQueryBuilder.getInjectionParameters().entrySet()) {
+            String token = "sub" + getNextToken();
+            injectionParameters.put(token, subQueryParameter.getValue());
+            tokensToReplace.put(subQueryParameter.getKey(), token);
+        }
+
+        String subQuery = subHqlQueryBuilder.build();
+        for (Map.Entry<String, String> tokenToReplace : tokensToReplace.entrySet()) {
+
+            subQuery = subQuery.replaceAll(":" + tokenToReplace.getKey(), ":" + tokenToReplace.getValue());
+        }
+        conditions.add(new Condition(subQuery, WhereClause.SUB_QUERY));
+        return this;
+    }
+
+    /**
+     * Used to add a conditional greater than and value to the last field added to the
+     * builder.
+     *
+     * @param value Value to evaluate greater than against.
+     * @return builder
+     */
+    public HqlQueryBuilder gt(Integer value) {
+        String token = getNextToken();
+        injectionParameters.put(token, value.intValue());
+        conditions.add(new Condition(null, WhereClause.GREATER_THAN, ":" + token));
+        return this;
+    }
+
+
+    /**
+     * Used to add an is null condition statement.
+     *
+     * @param field condition is null checked on this field
+     * @return builder
+     */
+    public HqlQueryBuilder isNull(String field) {
+        conditions.add(new Condition(field, WhereClause.NULL, null));
+        return this;
+    }
+
+    /**
+     * Used to add an is not condition statement
+     *
+     * @return builder
+     */
+    public HqlQueryBuilder not() {
+        conditions.add(new Condition(null, WhereClause.NOT, null));
+        return this;
+    }
+
+
+    /**
+     * Used to add a conditional less than and value to the last field added to the builder.
+     *
+     * @param value value to evaluate less than against
+     * @return builder
+     */
+    public HqlQueryBuilder lt(Integer value) {
+        String token = getNextToken();
+        this.injectionParameters.put(token, value.intValue());
+        conditions.add(new Condition(null, WhereClause.LESS_THAN,
+                ":" + token));
+        return this;
+    }
+
+
+    /**
+     * Used to add an is not null conditional statement
+     *
+     * @param field condition is not null checked on this field
+     * @return builder
+     */
+    public HqlQueryBuilder isNotNul(String field) {
+        conditions.add(new Condition(field, WhereClause.NOT_NULL, null));
+        return this;
+    }
+
+    /**
+     * Used to add a logical open scope "(" to a set of condition statements.
+     *
+     * @return builder
+     */
+    public HqlQueryBuilder open() {
+        conditions.add(new Condition(null, WhereClause.OPEN_SCOPE,
+                null));
+        return this;
+    }
+
+    /**
+     * Used to add a logical close scope ")" to a set of conditional statements.
+     *
+     * @return builder
+     */
+    public HqlQueryBuilder close() {
+        conditions.add(new Condition(null, WhereClause.CLOSE_SCOPE, null));
         return this;
     }
 
