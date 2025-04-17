@@ -59,7 +59,52 @@ public class HqlQueryBuilderTest {
     }
 
     @Test
-    public void testSelectMapWhere() {
+    public void testJoin() {
         Map<String, String> stringMap = new LinkedHashMap<>();
+        stringMap.put("u.name", "name_str");
+        stringMap.put("u.email", "email@email.com");
+        stringMap.put("com.hql.fabric.persistence.entity.User.groupInfo", "groupInfo");
+        String hql = hqlQueryBuilder.selectMap(stringMap)
+                .fromAs(User.class, "u")
+                .leftJoin("group.roles", "role")
+                .eq("u.name", "name_str_2")
+                .and()
+                .eq("role.type", "type1")
+                .build();
+        Assertions.assertEquals("SELECT NEW MAP (u.name as name_str, u.email as email@email.com, com.hql.fabric.persistence.entity.User.groupInfo as groupInfo) " +
+                "FROM com.hql.fabric.persistence.entity.User as u LEFT JOIN group.roles role " +
+                "WHERE u.name = :_0 and role.type = :_1", hql);
+    }
+
+    @Test
+    public void testOrderBy() {
+        Map<String, String> stringMap = new LinkedHashMap<>();
+        stringMap.put("u.name", "foo");
+        stringMap.put("u.email", "aa@alipay.com");
+        stringMap.put("com.hql.fabric.persistence.entity.User.groupInfo", "groupInfo");
+        String hql = hqlQueryBuilder
+                .selectMap(stringMap)
+                .fromAs(User.class, "u")
+                .orderBy("u.displayName", true)
+                .orderBy("u.securityLevel", false)
+                .fromAs(Order.class, "order")
+                .leftJoin("order.id", "id")
+                .eq("u.orderNo", "order_no_target")
+                .and()
+                .eq("order.type", "type1")
+                .build();
+        Assertions.assertEquals("SELECT NEW MAP (u.name as foo, u.email as aa@alipay.com, " +
+                "com.hql.fabric.persistence.entity.User.groupInfo as groupInfo) " +
+                "FROM com.hql.fabric.persistence.entity.User as u, " +
+                "com.hql.fabric.persistence.entity.Order as order " +
+                "LEFT JOIN order.id id " +
+                "WHERE u.orderNo = :_0 and order.type = :_1 " +
+                "ORDER BY u.displayName asc, u.securityLevel desc", hql);
+        Map<String, Object> hqlParameters = hqlQueryBuilder.getInjectionParameters();
+        hqlQueryBuilder.clear();
+        Assertions.assertEquals(hqlParameters.size(), 2);
+        Assertions.assertEquals(hqlQueryBuilder.getInjectionParameters().size(), 0);
+
+
     }
 }

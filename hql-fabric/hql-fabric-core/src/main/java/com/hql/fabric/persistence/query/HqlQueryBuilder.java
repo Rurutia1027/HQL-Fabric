@@ -253,6 +253,63 @@ public class HqlQueryBuilder {
     }
 
 
+    /**
+     * Used to add a logical conditional and between conditional statements
+     * Must be added between two conditions
+     *
+     * @return builder
+     */
+    public HqlQueryBuilder and() {
+        conditions.add(new Condition(null, WhereClause.AND, null));
+        return this;
+    }
+
+
+    /**
+     * Used to set the operator for the query to SELECT NEW MAP
+     *
+     * @param fieldMap Mapping of entries to their alias
+     * @return builder
+     */
+    public HqlQueryBuilder selectMap(Map<String, String> fieldMap) {
+        selectClause = SelectClause.SELECT_MAP;
+
+        StringBuilder stringBuilder = new StringBuilder();
+        String delimiter = "";
+        for (Map.Entry<String, String> entry : fieldMap.entrySet()) {
+            stringBuilder.append(delimiter).append(entry.getKey())
+                    .append(" as ")
+                    .append(entry.getValue());
+            delimiter = ", ";
+        }
+        operatorField = stringBuilder.toString();
+        return this;
+    }
+
+    /**
+     * Used to assign ordering by which the query will be returned.
+     * The order in which fields are added to the builder is the order by which they will be
+     * created.
+     *
+     * @param field     name of the field to order on
+     * @param ascending true to return ascending by the field, false for descending.
+     * @return builder
+     */
+    public HqlQueryBuilder orderBy(String field, boolean ascending) {
+        orderBy.put(field, ascending ? "asc" : "desc");
+        return this;
+    }
+
+    public HqlQueryBuilder groupBy(String field) {
+        this.groupBy = field;
+        return this;
+    }
+
+    public HqlQueryBuilder having(String operator) {
+        this.having = operator;
+        return this;
+    }
+
     /////////////////////////// --- common functions --- ////////////////////////
 
     /**

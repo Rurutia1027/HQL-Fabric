@@ -12,6 +12,8 @@ public class User extends Artifact {
 
     private String name;
     private String email;
+    private String groupInfo;
+    private String orderNo;
 
 
     // -- getter && setter --
@@ -29,5 +31,21 @@ public class User extends Artifact {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getGroupInfo() {
+        return groupInfo;
+    }
+
+    public void setGroupInfo(String groupInfo) {
+        this.groupInfo = groupInfo;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
     }
 }
