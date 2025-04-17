@@ -40,6 +40,61 @@ When using Spring Data JPA + Hibernate in typical projects, developers often enc
 - Preserves fine-grained Hibernate session control (flush, clear, rollback, etc.);
 - Supports plugin points for data-layer logging, query mocking, slow-query detection, etc.
 
+
+### UML Diagrams (to be refine via omniGraffle) 
+```
+  +-------------------------+
+  |     HqlQueryBuilder     |  <== Responsible for building HQL query strings
+  +-------------------------+
+  | - hqlParts: List<String>|
+  | - params: Map<String, Object>|
+  +-------------------------+
+  | + from(Class<?> clazz)  |
+  | + eq(String, Object)    |
+  | + and()                 |
+  | + build(): String       |
+  | + getInjectionParameters(): Map|
+  | + clear()               |
+  +-------------------------+
+
+            |
+            | build() + getInjectionParameters()
+            v
+
+  +-------------------------+
+  |      QueryRequest       |  <== Query bridge object
+  +-------------------------+
+  | - hql: String           |
+  | - parameters: Map       |
+  +-------------------------+
+  | + getHql()              |
+  | + getParameters()       |
+  | + static from(builder)  |
+  +-------------------------+
+
+            |
+            | query(hql, parameters)
+            v
+
+  +-------------------------+       +-------------------------+
+  |      QueryService       |<------+   PersistenceService    |
+  +-------------------------+       +-------------------------+
+  | + query(String, Map)    |       | Implements: query()     |
+  | + query(QueryRequest)   |       | Uses Hibernate to execute HQL |
+  +-------------------------+       +-------------------------+
+
+            ^
+            |
+  +-------------------------+
+  |     Caller Service       |
+  +-------------------------+
+  | Uses builder to create query |
+  | Constructs QueryRequest      |
+  | Invokes queryService.query() |
+  +-------------------------+
+```
+
+
 ---
 
 ## 📦 Planned Module Structure
