@@ -4,6 +4,7 @@ import com.hql.fabric.persistence.query.builder.Condition;
 import com.hql.fabric.persistence.query.builder.Join;
 import com.hql.fabric.persistence.query.builder.JoinEnum;
 import com.hql.fabric.persistence.query.builder.SelectClause;
+import com.hql.fabric.persistence.query.builder.WhereClause;
 import com.hql.fabric.persistence.query.builder.WithOperator;
 import com.hql.fabric.persistence.query.exception.HqlBuildException;
 import io.micrometer.common.util.StringUtils;
@@ -140,6 +141,100 @@ public class HqlQueryBuilder {
         injectionParameters.put(token, rhs);
         joins.add(new Join(JoinEnum.LEFT_OUTER, entity, alias, lhs, WithOperator.EQUAL,
                 ":" + token));
+        return this;
+    }
+
+    /**
+     * Used to create a right join of the registered entity with provided alias.
+     *
+     * @param entity name of the registered entity to be joined.
+     * @param alias  alias of the joined element.
+     * @return builder
+     */
+    public HqlQueryBuilder rightJoin(String entity, String alias) {
+        joins.add(new Join(JoinEnum.RIGHT_OUTER, entity, alias));
+        return this;
+    }
+
+    /**
+     * Used to create a right join of the registered entity with provided alias.
+     *
+     * @param clazz Class of the registered entity to be joined.
+     * @param alias alias of the joined element.
+     * @return builder
+     */
+    public HqlQueryBuilder rightJoin(Class clazz, String alias) {
+        joins.add(new Join(JoinEnum.RIGHT_OUTER, clazz.getName(), alias));
+        return this;
+    }
+
+    /**
+     * Used to create an inner join of the registered entity with provided alias.
+     *
+     * @param entity name of the registered entity to be joined.
+     * @param alias  alias of the joined element
+     * @return builder
+     */
+    public HqlQueryBuilder innerJoin(String entity, String alias) {
+        joins.add(new Join(JoinEnum.INNER, entity, alias));
+        return this;
+    }
+
+    /**
+     * Used to create an inner join of the registered entity with provided alias
+     *
+     * @param clazz Class of the registered entity to be joined
+     * @param alias alias of the joined element.
+     * @return builder
+     */
+    public HqlQueryBuilder innerJoin(Class clazz, String alias) {
+        joins.add(new Join(JoinEnum.INNER, clazz.getName(), alias));
+        return this;
+    }
+
+    /**
+     * Used to create a full join of the registered entity with provided alias.
+     *
+     * @param entity name of the registered entity to joined.
+     * @param alias  alias of the joined element.
+     * @return build
+     */
+    public HqlQueryBuilder fullJoin(String entity, String alias) {
+        joins.add(new Join(JoinEnum.FULL, entity, alias));
+        return this;
+    }
+
+    /**
+     * Used to create a full join of the registered entity with provided alias.
+     */
+
+    public HqlQueryBuilder like(String field, String value) {
+        String token = getNextToken();
+        injectionParameters.put(token, value);
+        conditions.add(new Condition(field, WhereClause.LIKE, ":" + token));
+        return this;
+    }
+
+    /**
+     * Used to set the operator for the query to SELECT
+     *
+     * @param field Additional fields required for the select.
+     * @return builder
+     */
+    public HqlQueryBuilder select(String field) {
+        selectClause = SelectClause.SELECT;
+        operatorField = field;
+        return this;
+    }
+
+    /**
+     * User to set the operator for the query to DELETE
+     *
+     * @return builder
+     */
+    public HqlQueryBuilder delete() {
+        selectClause = SelectClause.DELETE;
+        operatorField = "";
         return this;
     }
 

@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mini_payment
+    username: admin
+    password: admin
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: create
+      jdbc:
+        batch-size: 0
+      cache:
+        provider-class: org.hibernate.cache.internal.StandardQueryCache
+      default-schema: ""
+    show-sql: true

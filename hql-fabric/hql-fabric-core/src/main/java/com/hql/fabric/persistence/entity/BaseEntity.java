@@ -1,5 +1,7 @@
 package com.hql.fabric.persistence.entity;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 
@@ -9,6 +11,7 @@ import java.util.Date;
 public abstract class BaseEntity {
     // unique identifier
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected String id;
 
     // Metadata fields

@@ -12,6 +12,7 @@
         <module>hql-fabric-core</module>
         <module>hql-fabric-routing</module>
         <module>hql-fabric-monitor</module>
+        <module>hql-fabric-example</module>
     </modules>
 
     <properties>
