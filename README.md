@@ -108,16 +108,58 @@ List<User> users = persistenceService.query(hql, params);
 If you're migrating from a traditional JPA Repository setup (e.g., using `JpaRepository`, `@Query`, `JpaSpecificationExecutor`), consider the following: 
 
 #### Problem: Repository Bloat 
-- **Before**:
-- **Now**: 
+- **Before**: Every entity requires its own interface.
+- **Now**: One unified dynamic query engine using `HqlQueryBuilder`. 
 
 #### Problem: Complex Dynamic Queries 
 - **Before**: Hard to compose nested or optional filters with `Specification<T>` or criteria builders. 
 - **Now**: Fluent API makes optional conditions, joins, and parameter binding effortless. 
-#### Prlblem: Vendor-specific workarounds
-- **Before**: Needed to write custom SQL/HQL for Oracle, MySQL, Postgres, etc. 
-- **Now**: Build vendor-agnostic HQL using a unified DSL. 
 
+#### Problem: Vendor-specific workarounds
+- **Before**: Needed to write custom SQL/HQL for Oracle, MySQL, Postgres, etc. 
+- **Now**: Build vendor-agnostic HQL using a unified DSL.
+
+### Example 1: Basic Builder Usage
+```java
+HqlQueryBuilder builder = new HqlQueryBuilder()
+     .from(Product.class, "p")
+     .eq("p.available", true)
+     // greater than 
+     .gt("p.price", 100);
+
+String hql = builder.build();
+Map<String, Object> params = builder.getInjectionParameters();
+// hand over hql & parameters -> PersistenceService -> Hibernate#Session
+List<Product> results = persistenceService.query(hql, params); 
+```
+
+### Example 2: Composable Conditions 
+```java
+builder
+    .open() 
+       .like("u.name", "%john%")
+       .or()
+       .like("u.displayName", "%john%")
+   .close()
+   .eq("u.status", "ACTIVE"); 
+```
+
+### Example 3: Executing via PersistenceService 
+```java
+List<User> users = persistenceService.query(
+     builder.build(),
+     builder.getInjectionParameters()
+); 
+```
+
+
+### Example 4: Spring Boot Configuration Tips
+- Define `PersistenceService` as a Spring Bean in correspoinding config file. 
+- Register entity manager or inject `SessionFactory` to `PersistenceService`.
+
+// todo: add this coming soon
+
+- Customize global logging/metrics via Spring AOP if needed.
 
 ---
 
