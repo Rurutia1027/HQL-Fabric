@@ -1,54 +1,144 @@
-# Spring Batch Data Flow 
+# HQL-Fabric
+> ✨ A flexible and extensible query builder + executor for Hibernate(JPA), designed to simplify HQL construction and improve data access control.
 
-A practical playground for mastering **Spring Batch** by building real-world batch job pipelines integrated with a variety of **message brokers**, **data format**, and **data stores**. This repo explores different **combinations of message systems**. 
-
---- 
-
-## 🌟 What is tihs about ? 
-In modern microservice architectures, manaing distributed data flow -- especially when involving **high-throughput message queues** (like Kafka, RabbitMQ, or ActiveMQ) and **diverse data destinations** (e.g., databases, CSV files, Redis) -- can become unmanageable with hand-written listeners or thread pool tricks. 
-
-This project aims to **replace  ad-hoc dta processing pipelines** with a structured, scalable, and production-friendly approach powered by **Spring Batch**. 
+**HQL-Fabric** 
+- Offers a reusable and decoupled approach to dynamically building and executing HQL queries, built on top of Hibernate and JPA. It aims to solve common pain points in enterprise development involving custom queries and dynamic conditions.
+- It also **abstract away the differences in query syntax and capability across various database vendors**, providing a unified, vendor-agnostic data access layer. This eliminates the need to introduce multiple capability solutions just to support different underlying databases.
 
 --- 
 
-## Goals 
-- Explore **Kafka**, **RabbitMQ**, **ActiveMQ**, **Redis**, and more as **data sources**.
-- Read/write/transform data from **CSV**, **JSON**, **relational databases**, and **NoSQL**
-- Use **partitioned Kafka topics** and store those partitions in separate data sinks
-- Learn chunk-oriented and tasklet-based Spring Batch processing
-- Combine different messaging systems in one cohesive job
-- Apply Spring Batch best practices for monitoring, scaling, and maintainability
+## 💡 Project Purpose 
+When using Spring Data JPA + Hibernate in typical projects, developers often encounter the following issues: 
+- Each entity requires its own Repository interface, increasing code and maintenance overhead;
+- Custom business queries rely heavily on `@Query`, `@Modifying`, `@Transactional`, which can be verbose and limiting;
+- Dynamic queries using `JpaSpecificationExecutor` involve callback lambdas like `cb.equal`, `cb.or`, which are hard to read and debug;
+- Query logic and parameter binding are scattered, reducing traceability and reusability;
+- Data layer logging and transaction handling are fragmented and hard to centralize;
+- Difficult to extend to features like database sharding, routing, or custom session handling.
 
 ---
-## How to Run 
-// todo 
 
---- 
+## ✅ Problems Solved by hql-fabric
 
-## 🔮 Future Topics 
-- Spring Batch + GraphQL feed processing
-- Remote chunking across microservices
-- Parallel JOb execution on Kubernetes (multi-pod partitions)
-- Batch failure reporting via Slack/Email alerts
-- Integration with Spring Cloud Task / Data Flow
+| Problem | hql-fabric Solution |
+|---------|---------------------|
+| Hard to write dynamic queries | DSL-style builder for chaining and composing HQL statements (similar to MyBatis) |
+| Low reusability of HQL | Decouples query construction and execution via `QueryRequest` |
+| Unclear parameter binding | Explicit exposure of `Map<String, Object>` parameters for debugging |
+| Repository bloat | Avoids the need for entity-specific Repositories by using a generic `PersistenceService` |
+| Scattered query logging | Centralized execution layer for consistent logging and monitoring |
+| Difficult to prepare for sharding | Extensible architecture that supports dynamic routing and multi-database patterns |
 
---- 
+---
 
-## 🤝 Contribution Welcome!
+## 🧱 Design Philosophy
 
-Feel free to fork, raise PRs, or suggest new integration cases.
-Let’s build a solid Spring Batch knowledge base together.
+- **Builder pattern** to encapsulate HQL construction;
+- **QueryRequest model** to carry the built HQL and parameters;
+- **PersistenceService** as a unified query executor;
+- Ready for extensions like pagination, sorting, DTO projections, sharding, read/write separation;
+- Preserves fine-grained Hibernate session control (flush, clear, rollback, etc.);
+- Supports plugin points for data-layer logging, query mocking, slow-query detection, etc.
 
---- 
+---
 
-## License 
+## 📦 Planned Module Structure
 
-MIT License.
+- `hql-fabric-core`: Query builder and execution core;
+- `hql-fabric-routing`: Dynamic DataSource routing and sharding support;
+- `hql-fabric-monitor`: Optional observability/logging/metrics module;
+
+---
+
+## 🔧 Use Cases
+
+- Replacing boilerplate JPA repository interfaces;
+- Writing flexible cross-entity dynamic queries;
+- Providing reusable data-layer APIs for reporting or exporting;
+- Controlling HQL and session behavior at a fine-grained level;
+- Transitioning to database sharding or scaling SQL control in large systems;
+
+---
+## 🧩 Example Usage (coming soon)
+
+To be added:
+
+- Basic builder usage
+- Composable HQL conditions
+- How to execute queries via `PersistenceService`
+- Spring Boot integration guide
+- Sharding/routing extension usage (Stage 2)
+
+### Integration Guide: Spring BOot + JPA Projects
+To use **HQL-Fabric** in your JPA-based Spring Framework projects:
+- Add HQL-Fabric as a dependency (once available in Maven Central or via local build):
+
+```xml
+<!-- Coming soon -->
+<dependency>
+    <groupId>com.hql.fabric</groupId>
+    <artifactId>hql-fabric</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
+- Inject and user PersistenceService to execute your HQL dynamically:
+```java
+@Autowired
+private PersistenceService persistenceService; 
+```
+
+- Build dynamic queries using HqlQueryBuilder:
+```java
+HqlQueryBuilder builder = new HqlQueryBuilder();
+String hql = builder
+  .from(User.class, "user")
+  .eq("user.status", "ACTIVE")
+  .like("user.username", "%john%")
+  .orderByAsc("user.createdAt")
+  .build();
+
+// hand over your combined hql to PersistenceService to execute via Hibernate session & transaction
+Map<String, Object> params = buider.getInjectionParameters();
+
+List<User> users = persistenceService.query(hql, params); 
+```
+
+### Migration Tips: Moving from Traditional Repository to HQL-Fabric
+If you're migrating from a traditional JPA Repository setup (e.g., using `JpaRepository`, `@Query`, `JpaSpecificationExecutor`), consider the following: 
+
+#### Problem: Repository Bloat 
+- **Before**:
+- **Now**: 
+
+#### Problem: Complex Dynamic Queries 
+- **Before**: Hard to compose nested or optional filters with `Specification<T>` or criteria builders. 
+- **Now**: Fluent API makes optional conditions, joins, and parameter binding effortless. 
+#### Prlblem: Vendor-specific workarounds
+- **Before**: Needed to write custom SQL/HQL for Oracle, MySQL, Postgres, etc. 
+- **Now**: Build vendor-agnostic HQL using a unified DSL. 
 
 
+---
 
+## 🧱 Tech Stack
 
+- Java 8+
+- Spring Boot 2.x / 3.x
+- Hibernate ORM
+- JPA
+- Lombok (optional)
+- Spring AOP (for routing and logging)
 
+---
+
+## 📍 About the Name
+
+> “Fabric” is inspired by woven fabric systems—symbolizing how this project can **weave together, control, and route HQL queries in a flexible and unified way.**
+
+---
+
+If you're interested in this project, feel free to open issues, send pull requests, or ⭐️ Star it!
 
 
 
