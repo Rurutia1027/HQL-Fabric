@@ -238,6 +238,20 @@ public class HqlQueryBuilder {
         return this;
     }
 
+    /**
+     * Used to add a conditional where a field is equal to a value
+     *
+     * @param field field on which equality will be evaluted
+     * @param value value the equality expects
+     * @return builder
+     */
+    public HqlQueryBuilder eq(String field, String value) {
+        String token = getNextToken();
+        injectionParameters.put(token, value);
+        conditions.add(new Condition(field, WhereClause.EQUALS, ":" + token));
+        return this;
+    }
+
 
     /////////////////////////// --- common functions --- ////////////////////////
 
