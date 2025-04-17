@@ -77,7 +77,7 @@ When using Spring Data JPA + Hibernate in typical projects, developers often enc
             v
 
   +-------------------------+       +-------------------------+
-  |      QueryService       |<------+   PersistenceService    |
+  |  IHqlQueryService       |<------+   HqlQueryService    |
   +-------------------------+       +-------------------------+
   | + query(String, Map)    |       | Implements: query()     |
   | + query(QueryRequest)   |       | Uses Hibernate to execute HQL |
