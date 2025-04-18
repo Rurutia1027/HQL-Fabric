@@ -156,7 +156,7 @@ public interface IHqlQueryService {
      * @param params The replacement parameter values.
      * @return A List of Maps with lowercase column names as the keys.
      */
-    <T extends BaseEntity> List<T> sqlQuery(String sql, Object... params);
+    List sqlQuery(String sql, Object... params);
 
     /**
      * Execute an SQL query with ? replacement parameters.
@@ -166,7 +166,7 @@ public interface IHqlQueryService {
      * @param params The replacement parameter values.
      * @return A List of Maps with lowercase column names as the keys.
      */
-    <T extends BaseEntity> List<T> sqlQueryLimit(String sql, int limit, Object... params);
+    List sqlQueryLimit(String sql, int limit, Object... params);
 
     /**
      * Execute an SQL query with ? replacement parameters.
@@ -201,14 +201,16 @@ public interface IHqlQueryService {
     /**
      * Finds an object with the given unique identifier.
      *
-     * @param clazz    the data type of the object to search for
-     * @param objId    the unique identifier of the object
-     * @param typeName object's type name
+     * @param clazz the data type of the object to search for
+     * @param id the unique identifier of the object
+     * @param post the query post-processor to run on the object (may be {@code null})
+     * @param <T> The data type of the object
+     *
      * @return the fully loaded object that corresponds to the given unique identifier, or {@code null} if no
      * such object can be found.
      */
-    <T extends BaseEntity> T findSimpleObjectById(Class<T> clazz, String objId,
-                                                  String typeName);
+    <T extends BaseEntity> T findObjectById(Class<T> clazz,
+                                            String id, IQueryPostProcessor post);
 
     /**
      * Finds an object with the given name.
@@ -226,14 +228,26 @@ public interface IHqlQueryService {
     /**
      * Finds an object with the given name or unique identifier.
      *
+     * @param clazz    the data type of the object to search for
+     * @param idOrName the name or unique identifier of the object
+     * @param <T>      The data type of the object
+     * @return the fully loaded object that corresponds to the given name or unique identifier, or {@code null} if no
+     * such object can be found.
+     */
+    <T extends BaseEntity> T findObjectByIdOrName(Class<T> clazz, String idOrName);
+
+
+    /**
+     * Finds an object with the given name or unique identifier.
+     *
      * @param clazz  the data type of the object to search for
-     * @param idName the name or unique identifier of the object
-     * @param post   the query post-processor to run on the object (may be {@code null})
+     * @param idOrName the name or unique identifier of the object
+     * @param post   the query post-processor to run on the object (maybe {@code null})
      * @param <T>    The data type of the object
      * @return the fully loaded object that corresponds to the given name or unique identifier, or {@code null} if no
      * such object can be found.
      */
-    <T extends BaseEntity> T findObjectByIdOrName(Class<T> clazz, String idName,
+    <T extends BaseEntity> T findObjectByIdOrName(Class<T> clazz, String idOrName,
                                                   IQueryPostProcessor post);
 
     /**

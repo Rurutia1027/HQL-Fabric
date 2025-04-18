@@ -1,6 +1,8 @@
 package com.hql.fabric.persistence.service.impl;
 
 import com.hql.fabric.persistence.entity.BaseEntity;
+import com.hql.fabric.persistence.executor.LimitExecutor;
+import com.hql.fabric.persistence.executor.UpdateExecutor;
 import com.hql.fabric.persistence.processor.IQueryPostProcessor;
 import com.hql.fabric.persistence.query.builder.ArrayRowBuilder;
 import com.hql.fabric.persistence.query.builder.HqlQueryRequest;
@@ -13,11 +15,14 @@ import org.hibernate.JDBCException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.metamodel.mapping.EntityMappingType;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -27,25 +32,25 @@ public class HqlQueryService implements IHqlQueryService {
     private static final Logger LOG = LoggerFactory.getLogger(HqlQueryService.class);
     private static final Object[] EMPTY = {};
 
-    private final SessionFactoryImplementor sessionFactory;
+    private final SessionFactoryImplementor sfi;
     private final MapRowBuilder mapRowBuilder;
     private final ArrayRowBuilder arrayRowBuilder;
 
     public HqlQueryService(EntityManagerFactory entityManagerFactory) {
         super();
-        this.sessionFactory = entityManagerFactory.unwrap(SessionFactoryImplementor.class);
+        this.sfi = entityManagerFactory.unwrap(SessionFactoryImplementor.class);
         this.mapRowBuilder = new MapRowBuilder();
         this.arrayRowBuilder = new ArrayRowBuilder();
     }
 
     @Override
     public Session openSession() {
-        return this.sessionFactory.openSession();
+        return this.sfi.openSession();
     }
 
     public void shutdown() {
-        if (!this.sessionFactory.isClosed()) {
-            this.sessionFactory.close();
+        if (!this.sfi.isClosed()) {
+            this.sfi.close();
         }
     }
 
@@ -328,68 +333,253 @@ public class HqlQueryService implements IHqlQueryService {
 
 
     @Override
-    public  <T extends BaseEntity> List<T> sqlQuery(String sql, Object... params) {
-        return List.of();
+    public List sqlQuery(String sql, Object... params) {
+        return sqlQueryExecute(sql, 0, params, mapRowBuilder);
     }
 
     @Override
-    public  <T extends BaseEntity> List<T> sqlQueryLimit(String sql, int limit, Object... params) {
-        return List.of();
+    public List sqlQueryLimit(String sql, int limit, Object... params) {
+        return sqlQueryExecute(sql, limit, params, mapRowBuilder);
     }
 
     @Override
     public List<Object[]> sqlQueryArray(String sql, Object... params) {
-        return List.of();
+        return sqlQueryExecute(sql, 0, params, arrayRowBuilder);
     }
 
     @Override
     public int sqlUpdate(String sql, Object... params) {
-        return 0;
+        Session session = null;
+        try {
+            session = openSession();
+            return session.doReturningWork(new UpdateExecutor(sql, params));
+        } catch (Exception e) {
+            for (Object param : params) {
+                sql = sql + ", " + param.toString();
+            }
+            LOG.error("Failed to execute sql {}, with exception {}",
+                    sql, e.getMessage());
+            throw e;
+        } finally {
+            close(session);
+        }
     }
 
     @Override
     public <T extends BaseEntity> T findObjectByName(Class<T> clazz, String name) {
-        return null;
+        return findObjectByName(clazz, name, null);
     }
 
+    /**
+     * Finds an object with the given unique identifier.
+     *
+     * @param clazz the data type of the object to search for
+     * @param id    the unique identifier of the object
+     * @param post  the query post-processor to run on the object (may be {@code null})
+     * @param <T>   The data type of the object
+     * @return the fully loaded object that corresponds to the given unique identifier, or {@code null} if no
+     * such object can be found.
+     */
     @Override
-    public <T extends BaseEntity> T findSimpleObjectById(Class<T> clazz, String objId, String typeName) {
-        return null;
+    public <T extends BaseEntity> T findObjectById(Class<T> clazz,
+                                                   String id, IQueryPostProcessor post) {
+        if (Objects.isNull(id)) {
+            return null;
+        }
+
+        // build base HQL
+        String hql = "from " + clazz.getName() + " where id =?";
+
+        // run the query
+        List<T> found = query(hql, post, id);
+        return !found.isEmpty() ? found.get(0) : null;
     }
 
+
+    /**
+     * Finds an object with the given name
+     *
+     * @param clazz the data type of the object to search for
+     * @param name  the name or unique identifier of the object
+     * @param post  the query post-processor to run on the object
+     * @param <T>   the data type of the object
+     * @return the fully loaded object that associated with the given name or unique
+     * identifier.
+     */
     @Override
     public <T extends BaseEntity> T findObjectByName(Class<T> clazz, String name, IQueryPostProcessor post) {
-        return null;
+        if (Objects.isNull(name)) {
+            return null;
+        }
+
+        // Get the mapping metamodel
+        EntityMappingType mappingType = sfi.getRuntimeMetamodels()
+                .getMappingMetamodel()
+                .findEntityDescriptor(clazz.getName());
+
+        // build base HQL
+        StringBuilder hql =
+                new StringBuilder("from " + clazz.getName() + " where lower(name) = lower(?)");
+
+        // check if 'deleted' property exists
+        if (mappingType.findAttributeMapping("deleted") != null) {
+            hql.append(" and delete is null");
+        }
+
+        // run the query
+        List<T> found = query(hql.toString(), post, name);
+        return !found.isEmpty() ? found.get(0) : null;
     }
 
     @Override
-    public <T extends BaseEntity> T findObjectByIdOrName(Class<T> clazz, String idName, IQueryPostProcessor post) {
-        return null;
+    public <T extends BaseEntity> T findObjectByIdOrName(Class<T> clazz, String idOrName) {
+        return findObjectByIdOrName(clazz, idOrName, null);
+    }
+
+    @Override
+    public <T extends BaseEntity> T findObjectByIdOrName(Class<T> clazz, String idOrName, IQueryPostProcessor post) {
+        if (Objects.isNull(idOrName)) {
+            return null;
+        }
+        String hql = "from " + clazz.getName() +
+                " where (id=?0 or lower(name)=lower(?1))";
+        List<T> found = query(hql, post, idOrName, idOrName);
+        return found.isEmpty() ? null : found.get(0);
     }
 
     @Override
     public Object querySingle(String hql) {
-        return null;
+        Map<String, Object> namedParameters = new HashMap<>();
+        return querySingle(hql, namedParameters);
     }
 
     @Override
     public Object querySingle(String hql, Map<String, Object> params) {
-        return null;
+        return querySingle(hql, params, null);
     }
 
+    /**
+     * Executes an INSERT, UPDATE, or DELETE statement
+     *
+     * @param hql    hql statement to be executed
+     * @param params parameters of the statement
+     * @return the number of rows effected by the query
+     */
     @Override
     public int executeQuery(String hql, Map<String, Object> params) {
-        return 0;
+        Session session = null;
+        Transaction trx = null;
+
+        if (Objects.isNull(params)) {
+            LOG.error("query parameters is required, but not provided");
+            return -1;
+        }
+
+        try {
+            session = openSession();
+            Query query = session.createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query = query.setParameter(entry.getKey(), entry.getValue());
+            }
+            trx = session.beginTransaction();
+            int result = query.executeUpdate();
+            trx.commit();
+            return result;
+        } catch (Exception e) {
+            if (e instanceof JDBCException) {
+                LOG.error("JDBCException while executing hql {} with params count {}, gonna " +
+                        "rollback", hql, params.size(), e);
+            } else if (e instanceof HibernateException) {
+                LOG.error("HibernateException while executing hql {} with params count {}, " +
+                        "gonna rollback", hql, params.size(), e);
+            }
+
+            rollback(trx);
+            throw e;
+        } finally {
+            close(session);
+        }
     }
 
+    /**
+     * Performs a query for a single object
+     *
+     * @param hql    the HQL query text
+     * @param params the parameters of the query
+     * @param post   the post processor that handles the result of the query
+     */
     @Override
     public Object querySingle(String hql, Map<String, Object> params, IQueryPostProcessor post) {
-        return null;
+        Session session = null;
+        if (Objects.isNull(params)) {
+            LOG.info("query parameters are required, but not provided!");
+            return null;
+        }
+
+        try {
+            session = openSession();
+            Query query = session.createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query = query.setParameter(entry.getKey(), entry.getValue());
+            }
+            Object result = query.uniqueResult();
+            if (Objects.isNull(post)) {
+                return post.processFindResult(result);
+            } else {
+                return result;
+            }
+
+        } catch (Exception e) {
+            if (e instanceof JDBCException) {
+                LOG.error("JDBCException during executing hql {}, with parameter cnt {}",
+                        hql, params.size(), e);
+            } else if (e instanceof HibernateException) {
+                LOG.error("HibernateException during executing hql {}, with params count {}",
+                        hql, params.size(), e);
+            }
+            throw e;
+        } finally {
+            close(session);
+        }
+
     }
 
     @Override
     public <T extends BaseEntity> T findOrSave(String hql, Map<String, Object> params, T item) {
-        return null;
+        Session session = null;
+        Transaction trx = null;
+        if (Objects.isNull(params)) {
+            LOG.error("Query parameters are required, but not provided!");
+            return null;
+        }
+
+        try {
+            session = openSession();
+            Query query = session.createQuery(hql);
+            for (Map.Entry<String, Object> entry : params.entrySet()) {
+                query = query.setParameter(entry.getKey(), entry.getValue());
+            }
+            T found = (T) query.uniqueResult();
+            trx = session.beginTransaction();
+            item.setModifiedDate(new Date());
+            session.saveOrUpdate(item);
+            trx.commit();
+            return item;
+        } catch (Exception e) {
+            if (e instanceof JDBCException) {
+                LOG.error("JDBCException executing query '{}'. " +
+                                "Database may be down or unavailable. " +
+                                "Gonna rollback transaction!",
+                        hql, e);
+            } else if (e instanceof HibernateException) {
+                LOG.error("HibernateException executing query '{}'. " +
+                        "Gonna rollback transaction!", hql, e);
+            }
+            rollback(trx);
+            throw e;
+        } finally {
+            close(session);
+        }
     }
 
     @Override
@@ -400,8 +590,8 @@ public class HqlQueryService implements IHqlQueryService {
 
 
     // -- getter && setter --
-    public SessionFactoryImplementor getSessionFactory() {
-        return sessionFactory;
+    public SessionFactoryImplementor getSfi() {
+        return sfi;
     }
 
     private void rollback(Transaction trx) {
@@ -424,15 +614,15 @@ public class HqlQueryService implements IHqlQueryService {
         }
     }
 
-    private <T extends BaseEntity> List<T> sqlQueryExecute(String sql, int limit,
-                                                           Object[] params,
-                                                           RowBuilder builder) {
+    private List sqlQueryExecute(String sql, int limit,
+                                 Object[] params,
+                                 RowBuilder builder) {
         Session session = null;
         try {
             session = openSession();
             // return session.doReturningWork(());
-            return null;
-
+            return session.doReturningWork(
+                    new LimitExecutor(sql, limit, params, builder));
         } catch (HibernateException e) {
             LOG.error("HibernateException during executing sql {} limit {} with params num " +
                     "{}", sql, limit, params == null ? 0 : params.length, e);
