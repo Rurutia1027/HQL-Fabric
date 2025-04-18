@@ -1,4 +1,4 @@
-package com.hql.fabric.persistence.query.builder;
+package com.hql.fabric.persistence.query.operator;
 
 public enum WhereClause {
     EQUALS,

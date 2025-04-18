@@ -1,4 +1,4 @@
-package com.hql.fabric.persistence.query.builder;
+package com.hql.fabric.persistence.query.operator;
 
 /**
  * Represents an HQL operator used in a with clause (part of a join operation)

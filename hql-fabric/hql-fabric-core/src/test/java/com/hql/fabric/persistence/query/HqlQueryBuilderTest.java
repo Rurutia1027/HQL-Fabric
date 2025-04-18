@@ -4,6 +4,7 @@ package com.hql.fabric.persistence.query;
 import com.hql.fabric.HqlFabricCoreTestApp;
 import com.hql.fabric.persistence.entity.Order;
 import com.hql.fabric.persistence.entity.User;
+import com.hql.fabric.persistence.query.builder.HqlQueryBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

@@ -1,4 +1,4 @@
-package com.hql.fabric.persistence.query;
+package com.hql.fabric.persistence.query.builder;
 
 import java.util.Map;
 
