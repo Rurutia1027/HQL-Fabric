@@ -217,6 +217,29 @@ List<User> users = persistenceService.query(
 - Customize global logging/metrics via Spring AOP if needed.
 
 ---
+## 🌐 Native SQL Extension Interface Support (v1.1)
+### Background 
+
+### UML Design (with Hibernate SessionFactory Injection)
+This design introduces a dedicated service interface `NativeQueryService`, which provides methods to execute native SQL queries. THe concrete implementation `MySQLNativeQueryService` inherits from the base `HqlQueryService` to reuse it's inner `SessionFactory` instance, ensuring consistent and testable query execution. 
+
+### Key Interface Definitions 
+- `NativeQueryService`: Defines generic methods for native SQL execution with or without a request object. 
+- `NativeQueryRequest`: Encapsulate raw SQL string and parameters maps for query execution. 
+- `HqlQueryService`: Base class containing reusable `SessionFactory` logic and session retrieval methods. 
+- `MySQLNativeQueryService`: A concrete implementation for MySQL that extends `HqlQueryService` and implements `NativeQueryService`. 
+
+### Usage & Injection 
+This structure allows the `SessionFactory` to be injected via constructor, making it compatible with dependency injection frameworks such as Spring. It encourages a clean service layering, supports testing, and can be extended easily for other RDBMS backends (e.g., PostgreSQL). 
+
+- Example (Spring-style bean configuration):
+```java
+@Bean("mysqlNativeQueryService")
+public NativeQueryService nativeQueryService(SessionFactory sessionFactory) {
+  return new MySQLNativeQueryService(sessionFactory; 
+}
+```
+--- 
 
 ## 🧱 Tech Stack
 
