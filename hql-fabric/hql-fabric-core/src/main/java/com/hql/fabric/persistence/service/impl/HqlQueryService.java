@@ -1,6 +1,5 @@
 package com.hql.fabric.persistence.service.impl;
 
-import com.hql.fabric.persistence.entity.Artifact;
 import com.hql.fabric.persistence.entity.BaseEntity;
 import com.hql.fabric.persistence.processor.IQueryPostProcessor;
 import com.hql.fabric.persistence.query.HqlQueryRequest;
@@ -9,15 +8,12 @@ import jakarta.persistence.EntityManagerFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Service("hqlQueryService")
 public class HqlQueryService implements IHqlQueryService {
@@ -35,12 +31,12 @@ public class HqlQueryService implements IHqlQueryService {
     }
 
     @Override
-    public List query(String hql) {
+    public <T extends BaseEntity> List<T> query(String hql) {
         return List.of();
     }
 
     @Override
-    public List query(String hql, Object... params) {
+    public <T extends BaseEntity> List<T> query(String hql, Object... params) {
         return List.of();
     }
 
@@ -50,17 +46,17 @@ public class HqlQueryService implements IHqlQueryService {
     }
 
     @Override
-    public List query(String hql, Map<String, Object> namedParams, IQueryPostProcessor post) {
+    public <T extends BaseEntity> List<T> query(String hql, Map<String, Object> namedParams, IQueryPostProcessor post) {
         return List.of();
     }
 
     @Override
-    public List pagedQuery(String hql, Map<String, Object> namedParameters, Integer pageStart, Integer pageSize) {
+    public <T extends BaseEntity> List<T> pagedQuery(String hql, Map<String, Object> namedParameters, Integer pageStart, Integer pageSize) {
         return List.of();
     }
 
     @Override
-    public List pagedQuery(String hql, Map<String, Object> namedParameters, Integer pageStart, Integer pageSize, IQueryPostProcessor post) {
+    public <T extends BaseEntity> List<T> pagedQuery(String hql, Map<String, Object> namedParameters, Integer pageStart, Integer pageSize, IQueryPostProcessor post) {
         return List.of();
     }
 
@@ -90,12 +86,12 @@ public class HqlQueryService implements IHqlQueryService {
     }
 
     @Override
-    public List sqlQuery(String sql, Object... params) {
+    public  <T extends BaseEntity> List<T> sqlQuery(String sql, Object... params) {
         return List.of();
     }
 
     @Override
-    public List sqlQueryLimit(String sql, int limit, Object... params) {
+    public  <T extends BaseEntity> List<T> sqlQueryLimit(String sql, int limit, Object... params) {
         return List.of();
     }
 

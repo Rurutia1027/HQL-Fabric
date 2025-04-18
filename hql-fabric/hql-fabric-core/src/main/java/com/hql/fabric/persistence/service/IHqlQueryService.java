@@ -34,7 +34,7 @@ public interface IHqlQueryService {
      *
      * @param hql hibernate query language
      */
-    List query(String hql);
+    <T extends BaseEntity> List<T> query(String hql);
 
     /**
      * Executes the given hql query, using the variable arguments list to bind positional
@@ -44,7 +44,7 @@ public interface IHqlQueryService {
      * @param params the query parameters, organized in order
      * @return the result set for the query
      */
-    List query(String hql, Object... params);
+    <T extends BaseEntity> List<T> query(String hql, Object... params);
 
     /**
      * Executes the given query, using the variable arguments list to bind positional
@@ -55,7 +55,8 @@ public interface IHqlQueryService {
      * @param params the query parameters, organized in order
      * @return the result set for the query
      */
-    List query(String hql, IQueryPostProcessor post, Object... params);
+    <T extends BaseEntity> List<T> query(String hql, IQueryPostProcessor post,
+                                         Object... params);
 
     /**
      * Query list of entities based on HQL and query parameters organized via key & value map
@@ -75,7 +76,8 @@ public interface IHqlQueryService {
      * @param post        the query post-processor
      * @return the result set for the query
      */
-    List query(String hql, Map<String, Object> namedParams, IQueryPostProcessor post);
+    <T extends BaseEntity> List<T> query(String hql, Map<String, Object> namedParams,
+                                         IQueryPostProcessor post);
 
 
     /**
@@ -87,7 +89,8 @@ public interface IHqlQueryService {
      * @param namedParameters the associative array of named parameters.
      * @return the result set for the query
      */
-    List pagedQuery(String hql, Map<String, Object> namedParameters, Integer pageStart,
+    <T extends BaseEntity> List<T> pagedQuery(String hql, Map<String, Object> namedParameters,
+                                              Integer pageStart,
                     Integer pageSize);
 
     /**
@@ -100,7 +103,8 @@ public interface IHqlQueryService {
      * @param post            the query post-processor. May be {@code null} if no post-processing is required.
      * @return the result set
      */
-    List pagedQuery(String hql, Map<String, Object> namedParameters, Integer pageStart,
+    <T extends BaseEntity> List<T> pagedQuery(String hql, Map<String, Object> namedParameters,
+                                              Integer pageStart,
                     Integer pageSize, IQueryPostProcessor post);
 
     /**
@@ -152,7 +156,7 @@ public interface IHqlQueryService {
      * @param params The replacement parameter values.
      * @return A List of Maps with lowercase column names as the keys.
      */
-    List sqlQuery(String sql, Object... params);
+    <T extends BaseEntity> List<T> sqlQuery(String sql, Object... params);
 
     /**
      * Execute an SQL query with ? replacement parameters.
@@ -162,7 +166,7 @@ public interface IHqlQueryService {
      * @param params The replacement parameter values.
      * @return A List of Maps with lowercase column names as the keys.
      */
-    List sqlQueryLimit(String sql, int limit, Object... params);
+    <T extends BaseEntity> List<T> sqlQueryLimit(String sql, int limit, Object... params);
 
     /**
      * Execute an SQL query with ? replacement parameters.
