@@ -147,7 +147,7 @@ public interface IHqlQueryService {
     <T extends BaseEntity> List<T> saveAll(List<T> itemList);
 
 
-    <T extends BaseEntity> List<T> mergeAll(List<T> itemList) throws HibernateException;
+    <T extends BaseEntity> List<T> mergeAll(List<T> itemList) ;
 
     /**
      * Execute an SQL query with ? replacement parameters.

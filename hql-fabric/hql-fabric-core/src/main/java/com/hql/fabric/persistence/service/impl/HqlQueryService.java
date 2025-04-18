@@ -5,6 +5,7 @@ import com.hql.fabric.persistence.processor.IQueryPostProcessor;
 import com.hql.fabric.persistence.query.builder.ArrayRowBuilder;
 import com.hql.fabric.persistence.query.builder.HqlQueryRequest;
 import com.hql.fabric.persistence.query.builder.MapRowBuilder;
+import com.hql.fabric.persistence.query.builder.RowBuilder;
 import com.hql.fabric.persistence.service.IHqlQueryService;
 import jakarta.persistence.EntityManagerFactory;
 import org.hibernate.HibernateException;
@@ -195,25 +196,136 @@ public class HqlQueryService implements IHqlQueryService {
         }
     }
 
+    /**
+     * Save item to corresponding db table.
+     *
+     * @param item
+     * @param saveOrUpdate saveOrUpdate = true, then save this record, and the record will be saved in detachedstatus.
+     *                     saveOrUpdate = false, then create a new record, with allocating a new identifier ID.
+     * @param <T>          data type should be subclass of {@link BaseEntity}
+     * @return saved entity
+     */
     @Override
     public <T extends BaseEntity> T save(T item, boolean saveOrUpdate) throws HibernateException {
-        return null;
+        Session session = null;
+        Transaction trx = null;
+        T ret = null;
+
+        try {
+            session = openSession();
+            trx = session.beginTransaction();
+            if (saveOrUpdate) {
+                ret = (T) session.merge(item);
+            } else {
+                session.persist(item);
+                ret = item;
+            }
+            trx.commit();
+            return ret;
+        } catch (Exception e) {
+            if (e instanceof JDBCException) {
+                LOG.error("JDBCException while executing saving item with saveOrUpdate " +
+                        "status {}, gonna rollback", saveOrUpdate, e);
+            } else if (e instanceof HibernateException) {
+                LOG.error("HibernateException while executing saving item with saveOrUpdate " +
+                        "status {}, gonna rollback", saveOrUpdate, e);
+            }
+            rollback(trx);
+            throw e;
+        } finally {
+            close(session);
+        }
     }
 
     @Override
     public <T extends BaseEntity> T delete(T item) throws HibernateException {
-        return null;
+        Session session = null;
+        Transaction trx = null;
+
+        try {
+            session = openSession();
+            trx = session.beginTransaction();
+            session.remove(item);
+            trx.commit();
+            return item;
+        } catch (Exception e) {
+            if (e instanceof JDBCException) {
+                LOG.info("JDBCException while deleting item, gonna rollback!", e);
+            } else if (e instanceof HibernateException) {
+                LOG.error("HibernateException while deleting item, gonna rollback!", e);
+            }
+            rollback(trx);
+            throw e;
+        } finally {
+            close(session);
+        }
     }
 
+    /**
+     * Persist a list of items of type T to the data store.
+     *
+     * @param itemList list of objects in type of T that gonna to be persisted to db
+     * @param <T>      data type
+     * @return list of item in type of T
+     */
     @Override
     public <T extends BaseEntity> List<T> saveAll(List<T> itemList) {
-        return List.of();
+        Session session = null;
+        Transaction trx = null;
+        try {
+            session = openSession();
+            trx = session.beginTransaction();
+            for (T save : itemList) {
+                session.persist(save);
+            }
+            trx.commit();
+            return itemList;
+        } catch (Exception e) {
+            if (e instanceof JDBCException) {
+                LOG.error("JDBCException while saving all items to db, gonna rollback!", e);
+            } else if (e instanceof HibernateException) {
+                LOG.error("HibernateException while saving all items to db, gonna rollback!", e);
+            }
+
+            rollback(trx);
+            throw e;
+        } finally {
+            close(session);
+        }
     }
 
+    /**
+     * Persist a list of item of type T to the data store.
+     *
+     * @param itemList list of objects to be merged to data store
+     * @param <T>      the type of each item in list
+     * @return list of entities stored to db successfully
+     */
     @Override
-    public <T extends BaseEntity> List<T> mergeAll(List<T> itemList) throws HibernateException {
-        return List.of();
+    public <T extends BaseEntity> List<T> mergeAll(List<T> itemList) {
+        Session session = null;
+        Transaction trx = null;
+        try {
+            session = openSession();
+            trx = session.beginTransaction();
+            for (T save : itemList) {
+                session.merge(save);
+            }
+            trx.commit();
+            return itemList;
+        } catch (Exception e) {
+            if (e instanceof JDBCException) {
+                LOG.error("JDBCException during merge items to database, gonna rollback", e);
+            } else if (e instanceof HibernateException) {
+                LOG.error("HibernateException during merge items to db, gonna rollback", e);
+            }
+            rollback(trx);
+            throw e;
+        } finally {
+            close(session);
+        }
     }
+
 
     @Override
     public  <T extends BaseEntity> List<T> sqlQuery(String sql, Object... params) {
@@ -309,6 +421,24 @@ public class HqlQueryService implements IHqlQueryService {
             } catch (HibernateException e) {
                 LOG.error("Error closing Session", e);
             }
+        }
+    }
+
+    private <T extends BaseEntity> List<T> sqlQueryExecute(String sql, int limit,
+                                                           Object[] params,
+                                                           RowBuilder builder) {
+        Session session = null;
+        try {
+            session = openSession();
+            // return session.doReturningWork(());
+            return null;
+
+        } catch (HibernateException e) {
+            LOG.error("HibernateException during executing sql {} limit {} with params num " +
+                    "{}", sql, limit, params == null ? 0 : params.length, e);
+            throw e;
+        } finally {
+            close(session);
         }
     }
 }
