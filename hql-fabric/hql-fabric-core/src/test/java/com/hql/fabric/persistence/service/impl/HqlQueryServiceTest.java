@@ -19,4 +19,6 @@ public class HqlQueryServiceTest {
         Assertions.assertNotNull(hqlQueryService.getSfi());
         Assertions.assertNotNull(hqlQueryService.getSfi().openSession());
     }
+
+
 }
