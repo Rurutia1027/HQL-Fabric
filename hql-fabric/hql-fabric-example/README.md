@@ -48,6 +48,13 @@ This example covers a variety of typical reconciliation queries, such as:
 
 ### E-R Diagrams
 
+![img_1.png](pics/entity-relationship-diagram-1.png)
+
+
+### Relationship Summary 
+![img.png](pics/entity-relationship-diagram-2.png)
+
+
 ### Core Transaction Flow Table `transaction_flow_core`
 
 Represents transactions recorded by the **core system** (business-initiated layer).
@@ -139,103 +146,211 @@ CREATE TABLE transaction_flow_clearing
 ```
 
 - **Relationships**
+  - 1:N with reconciliation_result
 
 ### Reconciliation Strategy Table `reconciliation_strategy`
+
+Defines the **reconciliation rules** and scheduling.
 
 ```sql
 CREATE TABLE reconciliation_strategy
 (
-    -- 
+  -- primary key 
     id             BIGINT PRIMARY KEY,
+
+  -- strategy name 
     name           VARCHAR(64),
+
+  -- schedule type: REALTIME | HOURLY | DAILY 
     batch_type     VARCHAR(16), -- REALTIME / HOURLY / DAILY
+
+  -- field used to join core and clearing tables (via transaction_id) 
     match_key      VARCHAR(64), -- transaction_id 
+
+  -- comma-separated list of fields to compare (e.g., amount, status)
     compare_fields TEXT,        -- amount, status
+
+  -- whether the strategy is currently active 
     enabled        BOOLEAN   DEFAULT TRUE,
+
+  -- cron expression for scheduled execution 
     cron_expr      VARCHAR(64),
+
+  -- record creation timestamp 
     created_at     TIMESTAMP DEFAULT now()
 ); 
 ```
 
+- **Relationships**
+  - 1:N with reconciliation_batch
+
 ### Reconciliation Batch Table `reconciliation_batch`
+
+Represents a **single execution** of a reconciliation job.
 
 - **SQL**
 
 ```sql
 CREATE TABLE reconciliation_batch
 (
+  -- primary key 
     batch_id       BIGINT PRIMARY KEY,
+
+  -- foreign key to reconciliation_strategy 
     strategy_id    BIGINT REFERENCES reconciliation_strategy (id),
+
+  -- frequency type 
     batch_type     VARCHAR(16),
+
+  -- planned execution time 
     scheduled_time TIMESTAMP,
+
+  -- actual execution time 
     executed_at    TIMESTAMP,
+
+  -- execution result SUCCESS | FAILED | IN_PROGRESS 
     status         VARCHAR(16),
+
+  -- record creation timestamp 
     created_at     TIMESTAMP DEFAULT now()
 );
 ```
 
+- **Relationships**
+  - N:1 with reconciliation_strategy
+  - 1:N with reconciliation_result
+
 ### Reconciliation Result Table `reconciliation_result`
+
+Stores the **matching result** for a transaction pair during a batch execution.
 
 - **SQL**
 
 ```sql
 CREATE TABLE reconciliation_result
 (
+  -- primary key 
     id             BIGINT PRIMARY KEY,
+
+  -- foreign key to reconciliation_batch 
     batch_id       BIGINT REFERENCES reconciliation_batch (batch_id),
+
+  -- ID used for matching 
     transaction_id VARCHAR(64),
+
+  -- FK to transaction_flow_core 
     core_id        BIGINT REFERENCES transaction_flow_core (id),
+
+  -- FK to transaction_flow_clearing 
     clearing_id    BIGINT REFERENCES transaction_flow_clearing (id),
-    match_status   VARCHAR(32), -- MATCHED / MISMATCH / MISSING 
+
+  -- matching result: MATCHED | MISMATCH | MISSING 
+    match_status VARCHAR(32), -- MATCHED / MISMATCH / MISSING
+
+  -- description or JSON diff of mismatched fields 
     details        TEXT,
+
+  -- record creation timestamp 
     created_at     TIMESTAMP DEFAULT now()
 ); 
 ```
 
+- **Relationships**
+  - N:1 with reconciliation_batch
+  - N:1 with transaction_flow_core
+  - N:1 with transaction_flow_clearing
+  - 1:N with reconciliation_exception
+
 ### Exception Detail Table `reconciliation_exception`
+
+Represents **details exception diagnostics** for mismatched results.
 
 - **SQL**
 
 ```sql
 CREATE TABLE reconciliation_exception
 (
+  -- primary key 
     id             BIGINT PRIMARY KEY,
+
+  -- foreign key to reconciliation_result 
     result_id      BIGINT REFERENCES reconciliation_result (id),
+
+  -- type of exception (e.g., AMOUNT_MISMATCH)
     exception_type VARCHAR(32),
+
+  -- Severity    level: INFO, WARNING, CRITICAL  
     severity       VARCHAR(16),
+
+  -- Explanation of the mismatch  
     description    TEXT,
+
+  -- Whether the issue has been resolved 
     resolved       BOOLEAN   DEFAULT FALSE,
+
+  -- record creation timestamp 
     created_at     TIMESTAMP DEFAULT now()
 ); 
 ```
+- **Relationships**
+  - N:1 with reconciliation_result 
+
 
 ### Account User `account_user`
+
+User info table used for joining `account_id` to get user details.
 
 - **SQL**
 
 ```sql
 CREATE TABLE account_user
 (
+  -- primary key 
     account_id VARCHAR(64) PRIMARY KEY,
+
+  -- name of the account owner 
     user_name  VARCHAR(64),
+
+  -- type of user (e.g., individual, institutional)
     user_type  VARCHAR(32),
+
+  -- User region (e.g., CN, EU)
     region     VARCHAR(32),
+
+  -- timestamp 
     create_at  TIMESTAMP DEFAULT now()
 ); 
 ```
 
+- **Relationships**
+  - 1:N with transaction_flow_core 
+
 ### Product Configuration `product_config`
+
+Information about financial products.
 
 - **SQL**
 
 ```sql
 CREATE TABLE product_config
 (
+  -- primary key 
     product_code VARCHAR(32) PRIMARY KEY,
+
+  -- product category (e.g., FUND, BOND)
     category     VARCHAR(32),
+
+  -- whether the product is active 
     is_active    BOOLEAN,
+
+  -- risk classification: LOW | MEDIUM | HIGH 
     risk_level   VARCHAR(16),
+
+  -- timestamp 
     created_at   TIMESTAMP DEFAULT now()
 ); 
 ```
+
+- **Relationships**
+  - 1:N with transaction_flow_core
 
