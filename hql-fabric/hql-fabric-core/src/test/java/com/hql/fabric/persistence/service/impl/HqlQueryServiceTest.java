@@ -16,5 +16,7 @@ public class HqlQueryServiceTest {
     @Test
     public void initTest() {
         Assertions.assertNotNull(hqlQueryService);
+        Assertions.assertNotNull(hqlQueryService.getSfi());
+        Assertions.assertNotNull(hqlQueryService.getSfi().openSession());
     }
 }
