@@ -10,6 +10,8 @@ import com.hql.fabric.persistence.query.exception.HqlBuildException;
 import io.micrometer.common.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -193,14 +195,26 @@ public class HqlQueryBuilder {
     }
 
     /**
-     * Used to create a full join of the registered entity with provided alias.
+     * Used to create a full join of the registered entity with provided alias
      *
-     * @param entity name of the registered entity to joined.
-     * @param alias  alias of the joined element.
-     * @return build
+     * @param entity name of the registered entity to be joined
+     * @param alias  Alias of the joined element.
+     * @return builder
      */
     public HqlQueryBuilder fullJoin(String entity, String alias) {
         joins.add(new Join(JoinEnum.FULL, entity, alias));
+        return this;
+    }
+
+    /**
+     * Used to create a full join of the registered entity with provided alias
+     *
+     * @param clazz Class of the registered entity to be joined
+     * @param alias Alias of the joined element.
+     * @return builder
+     */
+    public HqlQueryBuilder fullJoin(Class clazz, String alias) {
+        joins.add(new Join(JoinEnum.FULL, clazz.getName(), alias));
         return this;
     }
 
@@ -212,6 +226,47 @@ public class HqlQueryBuilder {
         String token = getNextToken();
         injectionParameters.put(token, value);
         conditions.add(new Condition(field, WhereClause.LIKE, ":" + token));
+        return this;
+    }
+
+    /**
+     * Used to add a conditional where a field must be in a list of values.
+     *
+     * @param field  field to look for values
+     * @param values list of values to check for field
+     * @return builder
+     */
+    public HqlQueryBuilder in(String field, Object... values) {
+        StringBuilder stringBuilder = new StringBuilder();
+        String delimiter = "";
+        for (Object value : values) {
+            String token = getNextToken();
+            injectionParameters.put(token, value);
+            stringBuilder.append(delimiter).append(":").append(token);
+            delimiter = ", ";
+        }
+        conditions.add(new Condition(field, WhereClause.IN, stringBuilder.toString()));
+        return this;
+    }
+
+    /**
+     * Used to add a conditional where a field must be in a collection of values.
+     *
+     * @param field  field to look for in values
+     * @param values a collection of values to check for field
+     * @return builder
+     */
+    public HqlQueryBuilder in(String field, Collection<String> values) {
+        StringBuilder stringBuilder = new StringBuilder();
+        String delimiter = "";
+        for (Object value : values) {
+            String token = getNextToken();
+            injectionParameters.put(token, value);
+            stringBuilder.append(delimiter).append(":").append(token);
+            delimiter = ", ";
+        }
+        conditions.add(new Condition(field, WhereClause.IN,
+                stringBuilder.toString()));
         return this;
     }
 
@@ -249,6 +304,25 @@ public class HqlQueryBuilder {
         String token = getNextToken();
         injectionParameters.put(token, value);
         conditions.add(new Condition(field, WhereClause.EQUALS, ":" + token));
+        return this;
+    }
+
+    /**
+     * Used to add a conditional where a field is not equal to a value.
+     *
+     * @param field field on which equality will be evaluated.
+     * @param value value the equality expects
+     * @return builder
+     */
+    public HqlQueryBuilder neq(String field, Object value) {
+        String token = getNextToken();
+        injectionParameters.put(token, value);
+        conditions.add(new Condition(field, WhereClause.NOT_EQUAL, ":" + token));
+        return this;
+    }
+
+    public HqlQueryBuilder neqField(String field1, String field2) {
+        conditions.add(new Condition(field1, WhereClause.NOT_EQUAL, field2));
         return this;
     }
 
@@ -386,6 +460,37 @@ public class HqlQueryBuilder {
         return this;
     }
 
+    /**
+     * Used to add a conditional greater than and value to the field.
+     *
+     * @param field field on which equality will be evaluated.
+     * @param value value to evaluate greater than against
+     * @return builder
+     */
+    public HqlQueryBuilder gt(String field, Integer value) {
+        String token = getNextToken();
+        injectionParameters.put(token, value.intValue());
+        conditions.add(new Condition(field, WhereClause.GREATER_THAN, ":" + token));
+        return this;
+    }
+
+    /**
+     * Used to add a conditional greater and equal than and value to the field;
+     *
+     * @param field field on which equality will be evaluated.
+     * @param value value to evaluate greater than against
+     * @return builder
+     */
+    public HqlQueryBuilder ge(String field, Integer value) {
+        String token = getNextToken();
+        injectionParameters.put(token, value.intValue());
+        conditions.add(new Condition(field, WhereClause.GREATER_EQUAL_THAN, ":" + token));
+        return this;
+    }
+
+
+
+
 
     /**
      * Used to add an is null condition statement.
@@ -420,6 +525,88 @@ public class HqlQueryBuilder {
         this.injectionParameters.put(token, value.intValue());
         conditions.add(new Condition(null, WhereClause.LESS_THAN,
                 ":" + token));
+        return this;
+    }
+
+    /**
+     * Adds a conditional less than the given data
+     *
+     * @param field the field to compare
+     * @param value the value to compar the field to
+     * @return builder
+     */
+    public HqlQueryBuilder lt(String field, Date value) {
+        String token = getNextToken();
+        injectionParameters.put(token, value);
+        conditions.add(new Condition(field, WhereClause.LESS_THAN, ":" + token));
+        return this;
+    }
+
+    /**
+     * Adds a conditional after (greater than) the given date
+     *
+     * @param field the field to compare
+     * @param value the value to compare the field to
+     * @return builder
+     */
+    public HqlQueryBuilder gt(String field, Date value) {
+        String token = getNextToken();
+        injectionParameters.put(token, value);
+        conditions.add(new Condition(field, WhereClause.GREATER_THAN, ":" + token));
+        return this;
+    }
+
+    /**
+     * Adds a conditional greater or equal than the given date
+     *
+     * @param field the field to compare
+     * @param value the value to compare the field to
+     * @return builder
+     */
+    public HqlQueryBuilder ge(String field, Date value) {
+        String token = getNextToken();
+        injectionParameters.put(token, value);
+        conditions.add(new Condition(field, WhereClause.GREATER_THAN,
+                ":" + token));
+        return this;
+    }
+
+    /**
+     * Used to add a conditional less and equal than the value to the field.
+     *
+     * @param field field on which equality will be evaluated.
+     * @param value value to evaluate less than against
+     * @return builder
+     */
+    public HqlQueryBuilder le(String field, Integer value) {
+        String token = getNextToken();
+        injectionParameters.put(token, value.intValue());
+        conditions.add(new Condition(field, WhereClause.LESS_EQUAL_THAN, ":" + token));
+        return this;
+    }
+
+    /**
+     * Used to add a conditional less than and value to the field.
+     *
+     * @param field field on which equality will be evaluated
+     * @param value value to evaluate less than against
+     * @return builder
+     */
+    public HqlQueryBuilder lt(String field, Integer value) {
+        String token = getNextToken();
+        injectionParameters.put(token, value.intValue());
+        conditions.add(new Condition(field, WhereClause.LESS_THAN, ":" + token));
+        return this;
+    }
+
+    /**
+     * Used to add a logical conditional or between conditional statements
+     * Must be added between to conditions
+     *
+     * @return builder
+     */
+    public HqlQueryBuilder or() {
+        conditions.add(new Condition(null, WhereClause.OR, null));
         return this;
     }
 
