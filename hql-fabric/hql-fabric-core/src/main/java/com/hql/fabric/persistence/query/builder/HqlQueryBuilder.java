@@ -1,11 +1,11 @@
-package com.hql.fabric.persistence.query;
+package com.hql.fabric.persistence.query.builder;
 
-import com.hql.fabric.persistence.query.builder.Condition;
-import com.hql.fabric.persistence.query.builder.Join;
-import com.hql.fabric.persistence.query.builder.JoinEnum;
-import com.hql.fabric.persistence.query.builder.SelectClause;
-import com.hql.fabric.persistence.query.builder.WhereClause;
-import com.hql.fabric.persistence.query.builder.WithOperator;
+import com.hql.fabric.persistence.query.operator.Condition;
+import com.hql.fabric.persistence.query.operator.Join;
+import com.hql.fabric.persistence.query.operator.JoinEnum;
+import com.hql.fabric.persistence.query.operator.SelectClause;
+import com.hql.fabric.persistence.query.operator.WhereClause;
+import com.hql.fabric.persistence.query.operator.WithOperator;
 import com.hql.fabric.persistence.query.exception.HqlBuildException;
 import io.micrometer.common.util.StringUtils;
 
@@ -487,10 +487,6 @@ public class HqlQueryBuilder {
         conditions.add(new Condition(field, WhereClause.GREATER_EQUAL_THAN, ":" + token));
         return this;
     }
-
-
-
-
 
     /**
      * Used to add an is null condition statement.

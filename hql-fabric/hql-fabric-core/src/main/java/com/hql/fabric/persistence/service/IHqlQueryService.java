@@ -2,7 +2,7 @@ package com.hql.fabric.persistence.service;
 
 import com.hql.fabric.persistence.entity.BaseEntity;
 import com.hql.fabric.persistence.processor.IQueryPostProcessor;
-import com.hql.fabric.persistence.query.HqlQueryRequest;
+import com.hql.fabric.persistence.query.builder.HqlQueryRequest;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
