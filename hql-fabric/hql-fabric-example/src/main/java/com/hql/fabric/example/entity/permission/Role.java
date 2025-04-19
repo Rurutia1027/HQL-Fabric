@@ -1,4 +1,22 @@
 package com.hql.fabric.example.entity.permission;
 
-public class Role {
+import com.hql.fabric.persistence.entity.NamedArtifact;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.Data;
+
+/**
+ * * <p>
+ * * User <-> UserProfile => 1:1
+ * * User <-> Role => M:N
+ * * Role <-> Permission => M:N
+ * * User <-> Group => M:N
+ * * Group <-> Role => M: N
+ */
+@Data
+@Entity
+@Table(name = Role.TABLE)
+public class Role extends NamedArtifact {
+    public static final String TABLE = "example_role";
+    public static final String Root = "role";
 }
