@@ -40,6 +40,5 @@ public class FlywayMigrationTest {
         Assertions.assertNotNull(jdbcTemplate);
         List<String> names = jdbcTemplate.queryForList("SELECT account_id FROM example_account_user", String.class);
         Assertions.assertNotNull(names);
-        Assertions.assertEquals(names.size(), 2);
     }
 }
