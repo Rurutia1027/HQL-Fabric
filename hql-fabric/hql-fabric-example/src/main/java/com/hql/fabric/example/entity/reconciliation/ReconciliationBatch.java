@@ -20,7 +20,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "example_reconciliation_batch")
+@Table(name = "v2_reconciliation_batch")
 public class ReconciliationBatch extends NamedArtifact {
     @Column(name = "batch_id", unique = true, nullable = false)
     private Long batchId;

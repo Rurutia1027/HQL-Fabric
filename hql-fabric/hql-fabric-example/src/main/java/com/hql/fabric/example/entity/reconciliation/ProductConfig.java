@@ -17,7 +17,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "example_product_config")
+@Table(name = "v2_product_config")
 public class ProductConfig extends NamedArtifact {
 
     @Column(name = "product_code", unique = true, nullable = false)

@@ -19,7 +19,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "example_reconciliation_result")
+@Table(name = "v2_reconciliation_result")
 public class ReconciliationResult extends NamedArtifact {
 
     @ManyToOne

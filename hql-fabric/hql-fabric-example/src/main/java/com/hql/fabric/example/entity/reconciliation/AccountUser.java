@@ -17,7 +17,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "example_account_user")
+@Table(name = "v2_account_user")
 public class AccountUser extends NamedArtifact {
     @Column(name = "account_id", unique = true, nullable = false)
     private String accountId;
