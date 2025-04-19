@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "example_reconciliation_exception")
+@Table(name = "v2_reconciliation_exception")
 public class ReconciliationException extends NamedArtifact {
 
     @ManyToOne

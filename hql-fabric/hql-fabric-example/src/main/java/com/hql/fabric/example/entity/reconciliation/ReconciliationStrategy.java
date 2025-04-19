@@ -17,7 +17,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "example_reconciliation_strategy")
+@Table(name = "v2_reconciliation_strategy")
 public class ReconciliationStrategy extends NamedArtifact {
 
     @Column(name = "batch_type")
