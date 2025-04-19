@@ -1,6 +1,6 @@
-package com.hql.fabric.example.entity;
+package com.hql.fabric.example.entity.reconciliation;
 
-import com.hql.fabric.persistence.entity.Artifact;
+import com.hql.fabric.persistence.entity.NamedArtifact;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "example_transaction_flow_clearing")
-public class TransactionFlowClearing extends Artifact {
+public class TransactionFlowClearing extends NamedArtifact {
 
     @Column(name = "clearing_id", unique = true)
     private String clearingId;

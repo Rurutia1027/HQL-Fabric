@@ -1,6 +1,6 @@
-package com.hql.fabric.example.entity;
+package com.hql.fabric.example.entity.reconciliation;
 
-import com.hql.fabric.persistence.entity.Artifact;
+import com.hql.fabric.persistence.entity.NamedArtifact;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "example_reconciliation_exception")
-public class ReconciliationException extends Artifact {
+public class ReconciliationException extends NamedArtifact {
 
     @ManyToOne
     @JoinColumn(name = "result_id")

@@ -1,6 +1,6 @@
-package com.hql.fabric.example.entity;
+package com.hql.fabric.example.entity.reconciliation;
 
-import com.hql.fabric.persistence.entity.Artifact;
+import com.hql.fabric.persistence.entity.NamedArtifact;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "example_reconciliation_result")
-public class ReconciliationResult extends Artifact {
+public class ReconciliationResult extends NamedArtifact {
 
     @ManyToOne
     @JoinColumn(name = "batch_id")
