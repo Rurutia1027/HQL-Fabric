@@ -1,4 +1,4 @@
-package com.hql.fabric.flyway;
+package com.hql.fabric.test.flyway;
 
 import com.hql.fabric.HqlFabricExampleTestApplication;
 import org.flywaydb.core.Flyway;
@@ -25,7 +25,7 @@ public class FlywayMigrationTest {
         public Flyway flyway(@Autowired DataSource dataSource) {
             return Flyway.configure()
                     .dataSource(dataSource)
-                    .locations("classpath:db/migration")
+                    .locations("classpath:db/migration/test")
                     .baselineOnMigrate(true)
                     .load();
         }
@@ -38,7 +38,9 @@ public class FlywayMigrationTest {
     @Test
     public void initTest() {
         Assertions.assertNotNull(jdbcTemplate);
-        List<String> names = jdbcTemplate.queryForList("SELECT account_id FROM example_account_user", String.class);
+        List<String> names = jdbcTemplate.queryForList("SELECT email FROM test_users",
+                String.class);
         Assertions.assertNotNull(names);
+        Assertions.assertEquals(names.size(), 3);
     }
 }
