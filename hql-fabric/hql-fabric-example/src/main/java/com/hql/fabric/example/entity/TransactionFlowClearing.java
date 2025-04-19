@@ -19,7 +19,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "transaction_flow_clearing")
+@Table(name = "example_transaction_flow_clearing")
 public class TransactionFlowClearing extends Artifact {
 
     @Column(name = "clearing_id", unique = true)

@@ -1,5 +1,6 @@
 package com.hql.fabric.persistence.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,7 +13,8 @@ public abstract class BaseEntity {
     // unique identifier
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected String id;
+    @Column(name = "id")
+    protected Long id;
 
     // Metadata fields
     protected Date createdDate;
@@ -38,11 +40,13 @@ public abstract class BaseEntity {
     }
 
     // -- getter && setter --
-    public String getId() {
+
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

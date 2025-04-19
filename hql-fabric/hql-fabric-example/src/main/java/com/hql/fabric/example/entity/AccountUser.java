@@ -17,7 +17,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "account_user")
+@Table(name = "example_account_user")
 public class AccountUser extends Artifact {
     @Column(name = "account_id", unique = true, nullable = false)
     private String accountId;

@@ -21,7 +21,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "transaction_flow_core")
+@Table(name = "example_transaction_flow_core")
 public class TransactionFlowCore extends Artifact {
     @Column(name = "transaction_id", unique = true, nullable = false)
     private String transactionId;

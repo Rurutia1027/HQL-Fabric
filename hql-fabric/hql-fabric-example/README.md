@@ -48,11 +48,14 @@ This example covers a variety of typical reconciliation queries, such as:
 
 ### E-R Diagrams
 
-![img_1.png](pics/entity-relationship-diagram-1.png)
+![entity-relationship-diagram-1.png](pics/entity-relationship-diagram-1.png)
+
+![ER-Diagram.png](pics/ER-Diagram.png)
 
 
 ### Relationship Summary 
-![img.png](pics/entity-relationship-diagram-2.png)
+
+![entity-relationship-diagram-2.png](pics/entity-relationship-diagram-2.png)
 
 
 ### Core Transaction Flow Table `transaction_flow_core`
