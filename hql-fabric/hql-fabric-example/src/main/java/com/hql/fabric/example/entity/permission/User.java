@@ -69,9 +69,6 @@ public class User extends NamedArtifact {
 
 
     // -- getter && setter --
-
-
-
     public List<Role> getRoles() {
         return roles;
     }
