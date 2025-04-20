@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = Product.TABLE)
-public class Product extends NamedArtifact {
+public class Product extends BaseEntity {
     public static final String TABLE = "test_product";
 
     private String productNo;

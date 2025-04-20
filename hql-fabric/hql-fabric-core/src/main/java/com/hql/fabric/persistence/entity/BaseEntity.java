@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Version;
 
 import java.util.Date;
 
@@ -17,10 +18,19 @@ public abstract class BaseEntity {
     protected Long id;
 
     // Metadata fields
+    @Column(name = "created_at")
     protected Date createdDate;
+
+    @Column(name = "modified_at")
     protected Date modifiedDate;
+
+    @Version
     protected Long versionNumber = 1L;
+
+    @Column(name = "locked")
     protected boolean locked;
+
+    @Column(name = "disabled")
     protected boolean disabled;
 
     // Default Constructor
