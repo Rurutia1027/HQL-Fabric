@@ -101,7 +101,8 @@ public class HqlQueryService implements IHqlQueryService {
     }
 
     @Override
-    public <T extends BaseEntity> List<T> query(String hql, Map<String, Object> namedParams, IQueryPostProcessor post) {
+    public <T extends BaseEntity> List<T> query(String hql, Map<String, Object> namedParams,
+                                                IQueryPostProcessor post) {
         Session session = null;
         if (Objects.isNull(namedParams)) {
             LOG.debug("Expect query parameters, but not provided");
@@ -116,7 +117,7 @@ public class HqlQueryService implements IHqlQueryService {
 
             List<T> result = query.list();
 
-            if (Objects.isNull(post)) {
+            if (Objects.nonNull(post)) {
                 return post.processListResult(result);
             } else {
                 return result;
@@ -523,7 +524,7 @@ public class HqlQueryService implements IHqlQueryService {
                 query = query.setParameter(entry.getKey(), entry.getValue());
             }
             Object result = query.uniqueResult();
-            if (Objects.isNull(post)) {
+            if (Objects.nonNull(post)) {
                 return post.processFindResult(result);
             } else {
                 return result;

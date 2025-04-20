@@ -58,16 +58,6 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.17.0</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.github.database-rider</groupId>-->
-<!--            <artifactId>rider-core</artifactId>-->
-<!--            <version>1.38.1</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.github.database-rider</groupId>-->
-<!--            <artifactId>rider-spring</artifactId>-->
-<!--            <version>1.38.1</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
