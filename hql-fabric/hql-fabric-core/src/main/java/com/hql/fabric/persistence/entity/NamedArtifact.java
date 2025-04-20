@@ -1,5 +1,6 @@
 package com.hql.fabric.persistence.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 
 @MappedSuperclass
@@ -25,8 +26,12 @@ public class NamedArtifact extends BaseEntity {
      */
     public static final String DescriptionColumnName = "description";
 
+    @Column(name = "name")
     protected String name;
+
+    @Column(name = "display_name")
     protected String displayName;
+
     protected String description;
 
     public String getName() {

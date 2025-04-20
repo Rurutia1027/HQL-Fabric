@@ -1,5 +1,6 @@
 package com.hql.fabric.example.entity.permission;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
@@ -40,7 +41,7 @@ public class Permission extends NamedArtifact {
     private List<Role> roles;
 
     // -- getter && setter --
-
+    @JsonIgnore
     public List<Role> getRoles() {
         return roles;
     }

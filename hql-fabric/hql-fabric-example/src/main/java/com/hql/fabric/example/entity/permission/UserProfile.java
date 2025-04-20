@@ -1,5 +1,6 @@
 package com.hql.fabric.example.entity.permission;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
@@ -38,6 +39,7 @@ public class UserProfile extends NamedArtifact {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uid", referencedColumnName = User.UNIQUE_COLUMN_NAME)
+    @JsonIgnore
     private User user;
 
     @Column(name = "full_name")
@@ -50,6 +52,7 @@ public class UserProfile extends NamedArtifact {
     private String email;
 
     // -- getter && setter
+
     public User getUser() {
         return user;
     }

@@ -1,5 +1,6 @@
 package com.hql.fabric.example.entity.permission;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonRootName;
@@ -42,6 +43,7 @@ public class AuthGroup extends NamedArtifact {
     private List<User> users;
 
     @ManyToMany(fetch = FetchType.LAZY, targetEntity = Role.class)
+
     @JoinTable(name = "v1_groups_roles",
             joinColumns = @JoinColumn(name = "group_id", referencedColumnName = AuthGroup.UNIQUE_COLUMN_NAME),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = Role.UNIQUE_COLUMN_NAME))
@@ -49,7 +51,7 @@ public class AuthGroup extends NamedArtifact {
 
     // -- getter && setter --
 
-
+    @JsonIgnore
     public List<User> getUsers() {
         return users;
     }
@@ -58,6 +60,8 @@ public class AuthGroup extends NamedArtifact {
         this.users = users;
     }
 
+
+    @JsonIgnore
     public List<Role> getRoles() {
         return roles;
     }

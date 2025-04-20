@@ -7,24 +7,15 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = User.TABLE)
-public class User extends NamedArtifact {
+public class User extends BaseEntity {
     public static final String TABLE = "test_user";
 
-    private String name;
     private String email;
     private String groupInfo;
     private String orderNo;
 
 
     // -- getter && setter --
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getEmail() {
         return email;
     }
