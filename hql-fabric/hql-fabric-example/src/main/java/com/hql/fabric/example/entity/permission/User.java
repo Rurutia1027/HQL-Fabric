@@ -56,7 +56,6 @@ public class User extends NamedArtifact {
         }
     }
 
-//
     @ManyToMany(fetch = FetchType.LAZY, targetEntity = Role.class)
     @JoinTable(name = "v1_users_roles", joinColumns = @JoinColumn(name = "user_id",
             referencedColumnName = User.UNIQUE_COLUMN_NAME),

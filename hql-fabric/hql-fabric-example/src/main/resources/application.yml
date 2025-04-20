@@ -19,3 +19,5 @@ spring:
 logging:
   level:
     org.flywaydb.core: DEBUG
+server:
+  port: 8099
