@@ -38,7 +38,7 @@ public class UserProfile extends NamedArtifact {
     public static final String UNIQUE_COLUMN_NAME = "id";
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "uid", referencedColumnName = User.UNIQUE_COLUMN_NAME)
+    @JoinColumn(name = "user_id", referencedColumnName = User.UNIQUE_COLUMN_NAME)
     @JsonIgnore
     private User user;
 
