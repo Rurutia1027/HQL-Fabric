@@ -7,7 +7,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
       jdbc:
         batch-size: 0
       cache:
@@ -15,13 +15,6 @@ spring:
       default-schema: ""
     show-sql: true
 
-  flyway:
-    enabled: true
-    baseline-on-migrate: true
-    locations: classpath:migration
-    clean-disabled: false
-    clean-on-validation-error: true
-    validate-on-migrate: true
 
 logging:
   level:

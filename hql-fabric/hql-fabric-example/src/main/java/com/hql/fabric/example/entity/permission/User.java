@@ -65,6 +65,11 @@ public class User extends NamedArtifact {
     private List<Role> roles;
 
     @ManyToMany(fetch = FetchType.LAZY, targetEntity = AuthGroup.class)
+    @JoinTable(name = "v1_users_groups", joinColumns = @JoinColumn(name = "user_id",
+            referencedColumnName = User.UNIQUE_COLUMN_NAME),
+            inverseJoinColumns =
+            @JoinColumn(name = "group_id", referencedColumnName = AuthGroup.UNIQUE_COLUMN_NAME))
+
     private List<AuthGroup> groups;
 
 
@@ -78,12 +83,7 @@ public class User extends NamedArtifact {
     }
 
 
-    @JoinTable(name = "v1_users_groups", joinColumns = @JoinColumn(name = "user_id",
-            referencedColumnName = User.UNIQUE_COLUMN_NAME),
-            inverseJoinColumns =
-            @JoinColumn(name = "group_id", referencedColumnName = AuthGroup.UNIQUE_COLUMN_NAME))
-    @JsonIgnore
-    public List<AuthGroup> getGroups() {
+ public List<AuthGroup> getGroups() {
         return groups;
     }
 
