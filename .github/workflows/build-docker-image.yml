@@ -57,7 +57,7 @@ jobs:
 
       - name: Build & Push Docker Image for hql-fabric-example
         run: |
-          cd ../hql-fabric-example
+          cd hql-fabric/hql-fabric-example
           mvn compile jib:build -Pjib-push-to-local
 
       - name: Show Docker Images
