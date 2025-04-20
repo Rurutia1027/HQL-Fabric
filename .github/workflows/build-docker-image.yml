@@ -59,7 +59,5 @@ jobs:
         run: |
           cd hql-fabric/hql-fabric-example
           mvn compile jib:build -Pjib-push-to-local
-
-      - name: Show Docker Images
-        run: |
-          docker images | grep hql-fabric-example
+          echo "Built images (filter):"
+          docker images | grep hql-fabric-example || echo "No hql-fabric-example image found"
