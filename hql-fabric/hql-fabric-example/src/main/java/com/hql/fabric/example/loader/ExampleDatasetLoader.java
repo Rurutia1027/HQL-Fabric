@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class DbRiderDatasetLoader {
+public class ExampleDatasetLoader {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    public DbRiderDatasetLoader(DataSource dataSource) {
+    public ExampleDatasetLoader(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
