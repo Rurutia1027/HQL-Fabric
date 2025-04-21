@@ -53,4 +53,4 @@ jobs:
       - name: Build & Push Docker Image for hql-fabric-example && push to remote docker hub 
         run: |
           cd hql-fabric/ && mvn clean install 
-          cd hql-fabric/hql-fabric-example &&  mvn clean package -Pjib-push-to-dockerhub -Dapp.image.name=hql-fabric-example -Dapp.image.tag=test
+          cd hql-fabric-example &&  mvn clean package -Pjib-push-to-dockerhub -Dapp.image.name=hql-fabric-example -Dapp.image.tag=test
