@@ -15,6 +15,9 @@ spring:
       default-schema: ""
     show-sql: true
 
+example:
+  dataset:
+    path: datasets/query_datasets.yml
 
 logging:
   level:

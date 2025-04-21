@@ -2,7 +2,7 @@ package com.hql.fabric.example.controller;
 
 import com.hql.fabric.example.dto.ApiResponse;
 import com.hql.fabric.example.entity.permission.User;
-import com.hql.fabric.example.loader.DbRiderDatasetLoader;
+import com.hql.fabric.example.loader.ExampleDatasetLoader;
 import com.hql.fabric.persistence.query.builder.HqlQueryBuilder;
 import com.hql.fabric.persistence.service.impl.HqlQueryService;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ public class SelectQueryController {
     private static final Logger LOG = LoggerFactory.getLogger(SelectQueryController.class);
 
     @Autowired
-    private DbRiderDatasetLoader dbRiderDatasetLoader;
+    private ExampleDatasetLoader exampleDatasetLoader;
 
     @Autowired
     private HqlQueryService hqlQueryService;
