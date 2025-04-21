@@ -42,7 +42,8 @@ public class User extends NamedArtifact {
     public static final String Root = "user";
     public static final String UNIQUE_COLUMN_NAME = "id";
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER,
+            orphanRemoval = true)
     private UserProfile profile;
 
     public UserProfile getProfile() {
@@ -68,11 +69,12 @@ public class User extends NamedArtifact {
             referencedColumnName = User.UNIQUE_COLUMN_NAME),
             inverseJoinColumns =
             @JoinColumn(name = "group_id", referencedColumnName = AuthGroup.UNIQUE_COLUMN_NAME))
-
+    @JsonIgnore
     private List<AuthGroup> groups;
 
 
     // -- getter && setter --
+
     public List<Role> getRoles() {
         return roles;
     }
