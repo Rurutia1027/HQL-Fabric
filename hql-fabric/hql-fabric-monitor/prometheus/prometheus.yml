@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'hql-fabric-example'
+    static_configs:
+      - targets: ['hql_fabric_example:9101']
+
+  - job_name: 'hql-fabric-routing'
+    static_configs:
+      - targets: ['hql_fabric_routing:9102']

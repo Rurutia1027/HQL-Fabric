@@ -1,7 +1,5 @@
-version: '3.8'
+version: "3.8"
 
-# command to fetch docker hub's latest image
-# docker pull nanachi1027/hql-fabric-example:latest
 services:
   postgres:
     image: postgres:15
@@ -15,19 +13,66 @@ services:
       POSTGRES_PASSWORD: admin
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - fabric-net
 
-  hql-fabric-app:
-    image: nanachi1027/hql-fabric-example:latest
+  hql-fabric-examples:
+    build: ./hql-fabric-example
     container_name: hql_fabric_example
-    depends_on:
-      - postgres
     ports:
       - "8080:8080"
+      - "9101:9101"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hql_fabric_db
       SPRING_DATASOURCE_USERNAME: admin
       SPRING_DATASOURCE_PASSWORD: admin
-    restart: unless-stopped
+    depends_on:
+      - postgres
+    networks:
+      - fabric-net
+
+  hql-fabric-routing:
+    build: ./hql-fabric-routing
+    container_name: hql_fabric_routing
+    ports:
+      - "8081:8081"
+      - "9102:9102"
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/hql_fabric_db
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+    networks:
+      - fabric-net
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./hql-fabric-monitor/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - fabric-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: hql_fabric_grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN=admin
+      - GF_SECURITY_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    depends_on:
+      - prometheus
 
 volumes:
   pgdata:
+  grafana-storage:
+
+networks:
+  fabric-net:
