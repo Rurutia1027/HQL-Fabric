@@ -796,4 +796,14 @@ public class HqlQueryBuilder {
     private String getNextToken() {
         return "_" + tokenCount++;
     }
+
+    /**
+    * Used to set the operator for the query to use distinct results.
+     *
+     * @return builder
+    */
+    public HqlQueryBuilder distinct() {
+        this.distinct = true;
+        return this;
+    }
 }
