@@ -76,6 +76,10 @@ public class AuthGroupService implements IAuthGroupService {
 
     @Override
     public AuthGroup create(AuthGroup authGroup) {
-        return null;
+        if (!authGroup.hasDisplayName()) {
+            LOG.warn("create AuthGroup does not have display name assign name to it!");
+            authGroup.setDisplayName(authGroup.getName());
+        }
+        return hqlQueryService.save(authGroup);
     }
 }
