@@ -96,7 +96,7 @@ public class HqlQueryService implements IHqlQueryService {
 
 
     @Override
-    public <T extends BaseEntity> List<T> query(String hql, Map<String, Object> params) {
+    public List query(String hql, Map<String, Object> params) {
         return this.query(hql, params, null);
     }
 

@@ -1,7 +1,9 @@
 package com.hql.fabric.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import org.springframework.util.StringUtils;
 
 @MappedSuperclass
 public class NamedArtifact extends BaseEntity {
@@ -56,5 +58,9 @@ public class NamedArtifact extends BaseEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean hasDisplayName() {
+        return StringUtils.hasText(this.displayName);
     }
 }

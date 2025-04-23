@@ -66,7 +66,7 @@ public interface IHqlQueryService {
      * @param <T>    generic data type
      * @return list of entities
      */
-    <T extends BaseEntity> List<T> query(String hql, Map<String, Object> params);
+    List  query(String hql, Map<String, Object> params);
 
     /**
      * Executes the given query, using the associative array to bind named parameters.
