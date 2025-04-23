@@ -24,7 +24,7 @@ public class AuthGroupController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AuthGroupController.class);
 
-    @RequestMapping(value = "/authgroups", method = RequestMethod.DELETE.POST)
+    @RequestMapping(value = "/authgroups", method = RequestMethod.POST)
     public AuthGroup createAuthGroup(@RequestBody AuthGroup authGroup,
                                      HttpServletRequest httpServletRequest,
                                      HttpServletResponse httpServletResponse) throws Exception {
