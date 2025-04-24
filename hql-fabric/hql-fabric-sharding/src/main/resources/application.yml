@@ -10,7 +10,7 @@ spring:
         provider-class: org.hibernate.cache.internal.StandardQueryCache
       default-schema: ""
 
-sql:
+hql:
   fabric:
     sharding:
       enabled: true

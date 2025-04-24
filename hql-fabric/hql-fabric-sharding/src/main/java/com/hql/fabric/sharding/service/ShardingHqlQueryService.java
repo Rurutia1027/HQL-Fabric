@@ -1,17 +1,15 @@
 package com.hql.fabric.sharding.service;
 
 import com.hql.fabric.persistence.entity.BaseEntity;
+import com.hql.fabric.persistence.entity.NamedArtifact;
 import com.hql.fabric.persistence.processor.IQueryPostProcessor;
 import com.hql.fabric.persistence.query.builder.ArrayRowBuilder;
 import com.hql.fabric.persistence.query.builder.HqlQueryRequest;
 import com.hql.fabric.persistence.query.builder.MapRowBuilder;
 import com.hql.fabric.persistence.service.IHqlQueryService;
-import com.hql.fabric.sharding.router.IShardRouter;
-import jakarta.persistence.EntityManagerFactory;
+import com.hql.fabric.sharding.resolver.ShardedSessionResolver;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -19,43 +17,33 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service("shardingHqlQueryService")
 @ConditionalOnProperty(name = "hql.fabric.sharding.enabled", havingValue = "true")
 public class ShardingHqlQueryService implements IHqlQueryService {
     private static final Logger LOG = LoggerFactory.getLogger(ShardingHqlQueryService.class);
 
-    private final Map<String, SessionFactory> sessionFactoryMap;
-    private final IShardRouter shardingRouter;
+    private final ShardedSessionResolver sessionResolver;
     private final MapRowBuilder mapRowBuilder;
     private final ArrayRowBuilder arrayRowBuilder;
 
 
-    public ShardingHqlQueryService(Map<String, EntityManagerFactory> emfMap,
-                                   IShardRouter shardingRouter) {
-
-        // extract corresponding data sources (configured different dbs) to unwrap their
-        // inner Session Factory instances to init the sessionFactoryMap
-        LOG.info("ShardingQueryService initializing with EntityManager cnt {}", emfMap.size());
-        this.sessionFactoryMap = emfMap.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey,
-                        item -> item.getValue().unwrap(SessionFactoryImplementor.class)));
-        this.shardingRouter = shardingRouter;
+    public ShardingHqlQueryService(ShardedSessionResolver shardedSessionResolver) {
+        this.sessionResolver = shardedSessionResolver;
         this.mapRowBuilder = new MapRowBuilder();
         this.arrayRowBuilder = new ArrayRowBuilder();
-        LOG.info("ShardingQueryService initializing finished, with session factory instances" +
-                " {}", this.sessionFactoryMap.size());
     }
 
     @Override
     public Session openSession() {
-        return null;
+        return sessionResolver.resolveSession("from " + NamedArtifact.class);
     }
 
     @Override
-    public <T extends BaseEntity> List<T> query(String hql) {
-        return List.of();
+    public List query(String hql) {
+        try (Session session = sessionResolver.resolveSession(hql)) {
+            return session.createQuery(hql).list();
+        }
     }
 
     @Override
