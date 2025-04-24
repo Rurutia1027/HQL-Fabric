@@ -1,4 +1,4 @@
-package com.hql.fabric.example.controller;
+package com.hql.fabric.example.controller.permission;
 
 import com.hql.fabric.domain.permission.User;
 import com.hql.fabric.example.dto.ApiResponse;
