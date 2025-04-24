@@ -55,7 +55,7 @@ public class HqlQueryService implements IHqlQueryService {
     }
 
     @Override
-    public <T extends BaseEntity> List<T> query(String hql) {
+    public List query(String hql) {
         return this.query(hql, EMPTY);
     }
 

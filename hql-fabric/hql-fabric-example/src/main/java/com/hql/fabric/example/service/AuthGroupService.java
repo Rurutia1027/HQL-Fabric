@@ -1,6 +1,6 @@
 package com.hql.fabric.example.service;
 
-import com.hql.fabric.example.entity.permission.AuthGroup;
+import com.hql.fabric.domain.permission.AuthGroup;
 import com.hql.fabric.persistence.query.builder.HqlQueryBuilder;
 import com.hql.fabric.persistence.service.IHqlQueryService;
 import org.slf4j.Logger;

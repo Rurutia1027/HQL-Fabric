@@ -1,6 +1,7 @@
 package com.hql.fabric.example.service;
 
-import com.hql.fabric.example.entity.permission.AuthGroup;
+
+import com.hql.fabric.domain.permission.AuthGroup;
 import com.hql.fabric.persistence.entity.NamedArtifact;
 
 import java.util.Collection;

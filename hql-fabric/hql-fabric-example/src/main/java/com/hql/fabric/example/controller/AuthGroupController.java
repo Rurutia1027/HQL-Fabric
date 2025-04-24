@@ -1,6 +1,6 @@
 package com.hql.fabric.example.controller;
 
-import com.hql.fabric.example.entity.permission.AuthGroup;
+import com.hql.fabric.domain.permission.AuthGroup;
 import com.hql.fabric.example.service.AuthGroupService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -34,7 +34,7 @@ public interface IHqlQueryService {
      *
      * @param hql hibernate query language
      */
-    <T extends BaseEntity> List<T> query(String hql);
+    List query(String hql);
 
     /**
      * Executes the given hql query, using the variable arguments list to bind positional

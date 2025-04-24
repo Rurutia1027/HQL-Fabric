@@ -1,6 +1,6 @@
 package com.hql.fabric.example.query.select;
 
-import com.hql.fabric.example.entity.permission.User;
+import com.hql.fabric.domain.permission.User;
 import com.hql.fabric.persistence.query.builder.HqlQueryBuilder;
 import com.hql.fabric.persistence.service.impl.HqlQueryService;
 import org.slf4j.Logger;
