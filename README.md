@@ -100,9 +100,9 @@ When using Spring Data JPA + Hibernate in typical projects, developers often enc
 ## 📦 Planned Module Structure
 
 - `hql-fabric-core`: Query builder and execution core;
-- `hql-fabric-routing`: Dynamic DataSource routing and sharding support;
+- `hql-fabric-sharding`: Dynamic DataSource routing and sharding support;
 - `hql-fabric-monitor`: Optional observability/logging/metrics module;
-
+- `hql-fabric-example`: Show how to use `HqlQueryBuilder` + `IHqlQuerySerivce` to implement complex SQL query languages, and also show how to enable table sharding query in multiple datasources.  
 ---
 
 ## 🔧 Use Cases
