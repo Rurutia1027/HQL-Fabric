@@ -9,15 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>hql-fabric-example</artifactId>
-
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <app.image.name>hql-fabric-example</app.image.name>
-        <app.image.tag>${parent.version}</app.image.tag>
-    </properties>
+    <artifactId>hql-fabric-example-sharding</artifactId>
 
     <dependencies>
         <dependency>
@@ -30,6 +22,15 @@
             <artifactId>hql-fabric-domain</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.hql.fabric</groupId>
+            <artifactId>hql-fabric-sharding</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -81,10 +82,6 @@
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
@@ -100,7 +97,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.hql.fabric.HqlFabricExampleApplication</mainClass>
+                            <mainClass>com.hql.fabric.HqlFabricShardingQueryApp</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

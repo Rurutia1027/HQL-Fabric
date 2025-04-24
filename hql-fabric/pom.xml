@@ -12,8 +12,9 @@
         <module>hql-fabric-core</module>
         <module>hql-fabric-sharding</module>
         <module>hql-fabric-monitor</module>
-        <module>hql-fabric-example</module>
+        <module>hql-fabric-example-single</module>
         <module>hql-fabric-domain</module>
+        <module>hql-fabric-example-sharding</module>
     </modules>
 
     <properties>

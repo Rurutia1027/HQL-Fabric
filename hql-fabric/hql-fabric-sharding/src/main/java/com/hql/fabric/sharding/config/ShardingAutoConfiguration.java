@@ -44,6 +44,7 @@ public class ShardingAutoConfiguration {
             emfBean.setPackagesToScan("com.hql.fabric.domain");
             emfBean.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
             emfBean.setPersistenceUnitName("shard-" + shardKey);
+            emfBean.afterPropertiesSet();
 
             EntityManagerFactory emf = emfBean.getObject();
             if (Objects.isNull(emf)) {
